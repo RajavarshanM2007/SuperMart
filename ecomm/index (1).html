@@ -1,0 +1,3124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperMart - Modern E-Commerce Store & DB Portal</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+       
+    
+
+:root {
+    --primary: #0d9488;
+    --primary-hover: #0f766e;
+    --primary-light: #f0fdfa;
+    --secondary: #1c1917;
+    --accent: #f59e0b;
+    --warning: #f59e0b;
+    --danger: #e11d48;
+    --manager-purple: #9333ea;
+    --bg-page: #faf9f7;
+    --bg-card: #ffffff;
+    --border: #e7e5e4;
+    --text-main: #1c1917;
+    --text-muted: #78716c;
+    --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.06);
+    --shadow-md: 0 6px 18px rgba(28, 25, 23, 0.08);
+    --shadow-lg: 0 14px 32px rgba(28, 25, 23, 0.14);
+    --radius-md: 10px;
+    --radius-lg: 14px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background: var(--bg-page);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.topbar {
+    background: #134e4a;
+    color: white;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--accent);
+    box-shadow: 0 2px 10px rgba(19, 78, 74, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.site-logo {
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 6px 12px;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.site-title:hover .site-logo { transform: scale(1.06); }
+
+.site-title h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+}
+
+.site-title p {
+    font-size: 11px;
+    color: #99d5cf;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.db-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.db-status-badge:hover { background: rgba(255, 255, 255, 0.18); }
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+}
+
+.status-dot.demo {
+    background: #fbbf24;
+    box-shadow: 0 0 6px #fbbf24;
+}
+
+.role-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-pill.manager {
+    background: #f3e8ff;
+    color: var(--manager-purple);
+    border: 1px solid #d8b4fe;
+}
+
+.role-pill.customer {
+    background: #ccfbf1;
+    color: #0f766e;
+    border: 1px solid #99f6e4;
+}
+
+.role-pill.guest {
+    background: #f5f5f4;
+    color: #57534e;
+    border: 1px solid #d6d3d1;
+}
+
+.cart-header-btn {
+    background: var(--accent);
+    color: #1c1917;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.cart-header-btn:hover {
+    background: #fbbf24;
+    transform: translateY(-1px);
+}
+
+.cart-badge {
+    background: #134e4a;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+.container {
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    gap: 20px;
+    padding: 24px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+}
+
+@media (max-width: 1080px) {
+    .container { grid-template-columns: 220px 1fr; }
+    .profile-sidebar { grid-column: span 2; }
+}
+
+@media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    .profile-sidebar { grid-column: span 1; }
+}
+
+
+.box {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.box h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.menu-heading {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    margin: 10px 0 4px 6px;
+}
+
+.menu button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    background: #f5f5f4;
+    color: var(--secondary);
+    font-size: 13.5px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid transparent;
+}
+
+.menu button:hover {
+    background: #ffffff;
+    transform: translateX(3px);
+    border-color: var(--border);
+}
+
+.menu button.active {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+.menu button.manager-btn {
+    background: #faf5ff;
+    color: var(--manager-purple);
+    border: 1px solid #e9d5ff;
+}
+
+.menu button.manager-btn:hover { background: #f3e8ff; }
+
+.menu button.manager-btn.active {
+    background: var(--manager-purple);
+    color: white;
+}
+
+.menu-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 10px 0;
+}
+
+
+.tools {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #f5f5f4;
+    border-radius: var(--radius-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-bar-container {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    min-width: 280px;
+    position: relative;
+    align-items: center;
+}
+
+.search-bar {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.search-bar:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+.ai-search-btn {
+    background: #134e4a;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.ai-search-btn:hover { background: #0f766e; }
+
+.ai-search-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sort-select {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 13.5px;
+    color: var(--secondary);
+    outline: none;
+    cursor: pointer;
+}
+
+.sort-select:focus { border-color: var(--primary); }
+
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    background: white;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: #99d5cf;
+}
+
+.card-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #fef3c7;
+    color: #b45309;
+    font-weight: 700;
+}
+
+.icon {
+    font-size: 44px;
+    margin: 10px 0;
+    text-align: center;
+    background: #f0fdfa;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.card h3 {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 6px;
+}
+
+.card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.price {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.rating {
+    font-size: 12px;
+    color: #b45309;
+    font-weight: 600;
+}
+
+.stock-indicator {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.quantity-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f5f5f4;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 6px;
+}
+
+.qty-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.qty-btn.minus {
+    background: #e7e5e4;
+    color: var(--secondary);
+}
+
+.qty-btn.minus:hover { background: #d6d3d1; }
+
+.qty-btn.plus {
+    background: var(--primary);
+    color: white;
+}
+
+.qty-btn.plus:hover { background: var(--primary-hover); }
+
+.qty-text {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--secondary);
+}
+
+.add-btn-basket {
+    width: 100%;
+    padding: 9px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.add-btn-basket:hover { background: var(--primary-hover); }
+.add-btn-basket:active { transform: scale(0.98); }
+
+
+.cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafaf9;
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+}
+
+.cart-item-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cart-item-icon {
+    font-size: 28px;
+    background: white;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.cart-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.delete-btn {
+    background: #ffe4e6;
+    color: var(--danger);
+    border: none;
+    padding: 7px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.delete-btn:hover { background: #fecdd3; }
+
+.clear-btn {
+    background: #ffe4e6;
+    color: var(--danger);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.clear-btn:hover { background: #fecdd3; }
+
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+}
+
+.form-group { margin-bottom: 12px; }
+
+.form-group label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.checkout-summary {
+    background: #fafaf9;
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: var(--radius-md);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    font-size: 13.5px;
+    color: var(--text-muted);
+}
+
+.summary-row.total {
+    border-top: 2px dashed var(--border);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--secondary);
+}
+
+.coupon-box {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.coupon-btn {
+    padding: 9px 14px;
+    background: #e7e5e4;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.coupon-btn:hover { background: #d6d3d1; }
+
+.place-order-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #1c1917;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.place-order-btn:hover {
+    background: #d97706;
+    color: white;
+}
+
+.place-order-btn:active { transform: scale(0.99); }
+
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.order-card {
+    background: #fafaf9;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 16px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.order-status {
+    background: #ccfbf1;
+    color: #0f766e;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+
+.auth-container {
+    max-width: 480px;
+    margin: 30px auto;
+    background: white;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 2px solid #f5f5f4;
+    margin-bottom: 20px;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s;
+}
+
+.auth-tab-btn:hover { color: var(--primary); }
+
+.auth-tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.quick-role-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.quick-role-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fafaf9;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.quick-role-btn:hover {
+    background: #f0fdfa;
+    border-color: #99d5cf;
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(28, 25, 23, 0.55);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 520px;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #f5f5f4;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.2s;
+}
+
+.modal-close:hover { background: #e7e5e4; }
+
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1c1917;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2000;
+    font-size: 13.5px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+
+.db-flow-toast {
+    position: fixed;
+    bottom: 16px;
+    left: 20px;
+    right: 20px;
+    max-width: 980px;
+    margin: 0 auto;
+    background: #1c1917;
+    color: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    z-index: 2500;
+    border: 1px solid #44403c;
+    animation: slideUp 0.3s ease;
+}
+
+.db-flow-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.db-flow-step {
+    background: #292524;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #44403c;
+    font-size: 11.5px;
+}
+
+.db-flow-step-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #5eead4;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.db-flow-step-code {
+    font-family: Consolas, monospace;
+    font-size: 11px;
+    color: #fcd34d;
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+    </style>
+</head>
+
+<body>
+
+    
+    <header class="topbar">
+        <div class="site-title" onclick="setView('shop', 'All')">
+            <div class="site-logo">⚡</div>
+            <div>
+                <h1>SuperMart</h1>
+                <p>Enterprise E-Commerce & Supabase Database</p>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            
+            <button class="db-status-badge"
+                style="background: rgba(168, 85, 247, 0.2); border-color: rgba(216, 180, 254, 0.4); color: #f3e8ff;"
+                onclick="openGeminiModal()" title="Configure Gemini AI Search API Key">
+                <span>✨ Gemini AI Key</span>
+            </button>
+
+            
+            <button class="db-status-badge"
+                style="background: rgba(99, 102, 241, 0.2); border-color: rgba(165, 180, 252, 0.4); color: #e0e7ff;"
+                onclick="openDbFlowModal()" title="View Interactive Database Demonstration Flow">
+                <span>📊 Interactive DB Flow</span>
+            </button>
+
+            
+            <div id="headerRoleBadge"></div>
+
+            
+            <div class="db-status-badge" id="dbStatusBadge" onclick="openSupabaseModal()"
+                title="Configure Supabase Database">
+                <span class="status-dot demo" id="dbDot"></span>
+                <span id="dbStatusText">Supabase: Connecting...</span>
+            </div>
+
+            
+            <button class="cart-header-btn" onclick="setView('cart')">
+                🛒 Cart <span class="cart-badge" id="headerCartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    
+    <main id="mainContainer">
+        
+    </main>
+
+    
+    <div id="modalContainer"></div>
+
+    
+    <div id="toastContainer"></div>
+
+    <script>
+
+
+
+
+        const DEFAULT_PRODUCTS = [
+
+            { id: 1, name: "Apple iPhone 15 Pro", category: "Electronics", price: 999.00, icon: "📱", stock: 15, rating: 4.9, description: "Titanium design with A17 Pro chip and 48MP camera system." },
+            { id: 2, name: "MacBook Air M2", category: "Electronics", price: 1199.00, icon: "💻", stock: 10, rating: 4.8, description: "13.6-inch Liquid Retina display, 18-hour battery life." },
+            { id: 3, name: "Samsung 4K Smart TV", category: "Electronics", price: 649.00, icon: "📺", stock: 8, rating: 4.6, description: "55-inch Crystal UHD 4K, HDR with Gaming Hub." },
+            { id: 4, name: "iPad Air 11-inch", category: "Electronics", price: 599.00, icon: "📲", stock: 12, rating: 4.7, description: "Powered by M2 chip with ultra-responsive display." },
+
+
+            { id: 5, name: "Sony WH-1000XM5", category: "Audio & Wearables", price: 349.00, icon: "🎧", stock: 25, rating: 4.9, description: "Industry-leading noise cancelling wireless headphones." },
+            { id: 6, name: "Apple Watch Series 9", category: "Audio & Wearables", price: 399.00, icon: "⌚", stock: 20, rating: 4.8, description: "S9 SiP chip with Double Tap gesture and health tracking." },
+            { id: 7, name: "AirPods Pro Gen 2", category: "Audio & Wearables", price: 249.00, icon: "🎵", stock: 30, rating: 4.8, description: "Active Noise Cancellation and Adaptive Audio." },
+            { id: 8, name: "JBL Flip 6 Speaker", category: "Audio & Wearables", price: 129.00, icon: "🔊", stock: 18, rating: 4.5, description: "IP67 waterproof Bluetooth portable speaker." },
+
+
+            { id: 9, name: "PlayStation 5 Console", category: "Gaming", price: 499.00, icon: "🎮", stock: 9, rating: 5.0, description: "Next-gen 4K-120fps gaming with ultra-fast SSD." },
+            { id: 10, name: "Logitech MX Master 3S", category: "Gaming", price: 99.00, icon: "🖱️", stock: 35, rating: 4.8, description: "Quiet clicks, 8K DPI sensor on glass surface." },
+            { id: 11, name: "Keychron Mechanical Keyboard", category: "Gaming", price: 110.00, icon: "⌨️", stock: 16, rating: 4.7, description: "Wireless RGB hot-swappable mechanical switches." },
+            { id: 12, name: "Elgato Stream Deck MK.2", category: "Gaming", price: 149.00, icon: "🕹️", stock: 14, rating: 4.6, description: "15 customizable tactile LCD keys for streaming and workflow." },
+
+
+            { id: 13, name: "Nike Air Jordan 1 Retro", category: "Fashion", price: 180.00, icon: "👟", stock: 14, rating: 4.8, description: "Iconic high-top sneaker with premium genuine leather." },
+            { id: 14, name: "Vintage Denim Jacket", category: "Fashion", price: 89.00, icon: "🧥", stock: 22, rating: 4.5, description: "100% durable cotton denim with washed retro finish." },
+            { id: 15, name: "Minimalist Leather Backpack", category: "Fashion", price: 125.00, icon: "🎒", stock: 17, rating: 4.7, description: "Water-resistant genuine leather with 15-inch laptop sleeve." },
+            { id: 16, name: "Classic Chronograph Watch", category: "Fashion", price: 195.00, icon: "🕰️", stock: 11, rating: 4.6, description: "Stainless steel case with sapphire crystal and leather strap." },
+
+
+            { id: 17, name: "Dyson V12 Cordless Vacuum", category: "Home & Office", price: 499.00, icon: "🧹", stock: 7, rating: 4.7, description: "Laser reveals invisible dust with powerful cyclone suction." },
+            { id: 18, name: "Nespresso Vertuo Coffee Maker", category: "Home & Office", price: 129.00, icon: "☕", stock: 16, rating: 4.6, description: "Barista quality espresso with automatic capsule recognition." },
+            { id: 19, name: "Smart Ergonomic Desk Lamp", category: "Home & Office", price: 59.00, icon: "💡", stock: 30, rating: 4.4, description: "Adjustable color temperature with auto-dimming ambient sensor." },
+
+
+            { id: 20, name: "Organic Almonds 500g", category: "Groceries", price: 12.99, icon: "🌰", stock: 60, rating: 4.7, description: "Crunchy raw California almonds, rich in protein and vitamin E." },
+            { id: 21, name: "Premium Basmati Rice 5kg", category: "Groceries", price: 18.50, icon: "🍚", stock: 45, rating: 4.6, description: "Aged long-grain basmati with a fragrant aroma." },
+            { id: 22, name: "Extra Virgin Olive Oil 1L", category: "Groceries", price: 16.99, icon: "🫒", stock: 35, rating: 4.8, description: "Cold-pressed olive oil, perfect for salads and cooking." },
+            { id: 23, name: "Dark Chocolate Bar 70%", category: "Groceries", price: 4.99, icon: "🍫", stock: 100, rating: 4.7, description: "Rich single-origin dark chocolate with low sugar." },
+            { id: 24, name: "Assorted Fruit Basket", category: "Groceries", price: 29.00, icon: "🍎", stock: 20, rating: 4.6, description: "Fresh seasonal apples, oranges, bananas and grapes." },
+            { id: 25, name: "Whole Wheat Bread Loaf", category: "Groceries", price: 3.49, icon: "🍞", stock: 50, rating: 4.4, description: "Freshly baked, soft whole grain sandwich bread." },
+            { id: 26, name: "Greek Yogurt 500g", category: "Groceries", price: 5.25, icon: "🥛", stock: 40, rating: 4.5, description: "Thick, creamy high-protein plain Greek yogurt." },
+            { id: 27, name: "Pepperoni Pizza (Frozen)", category: "Groceries", price: 8.99, icon: "🍕", stock: 30, rating: 4.3, description: "Stone-baked thin crust with mozzarella and pepperoni." },
+            { id: 28, name: "Instant Noodles 5-Pack", category: "Groceries", price: 4.50, icon: "🍜", stock: 80, rating: 4.2, description: "Spicy masala instant noodles, ready in 3 minutes." },
+            { id: 29, name: "Cold Brew Coffee 6-Pack", category: "Groceries", price: 14.99, icon: "🥤", stock: 25, rating: 4.6, description: "Smooth ready-to-drink cold brew coffee bottles." },
+            { id: 30, name: "Honey Jar 500g", category: "Groceries", price: 9.75, icon: "🍯", stock: 38, rating: 4.8, description: "Pure raw wildflower honey, unfiltered and natural." },
+            { id: 31, name: "Mixed Nuts & Berries Snack Pack", category: "Groceries", price: 11.49, icon: "🥜", stock: 55, rating: 4.5, description: "Healthy trail mix of cashews, almonds, raisins and cranberries." },
+            { id: 32, name: "Creamy Mac & Cheese Box", category: "Groceries", price: 6.49, icon: "🧀", stock: 70, rating: 4.7, description: "Classic macaroni pasta in a rich, creamy cheddar cheese sauce. Cheesy comfort food ready in 10 minutes." },
+            { id: 33, name: "Four Cheese Pizza (Frozen)", category: "Groceries", price: 9.99, icon: "🍕", stock: 40, rating: 4.6, description: "Stone-baked crust loaded with mozzarella, cheddar, parmesan and gouda. Extra cheesy." },
+            { id: 34, name: "Mozzarella Cheese Block 500g", category: "Groceries", price: 8.75, icon: "🧀", stock: 45, rating: 4.6, description: "Stretchy low-moisture mozzarella, perfect for pizza, pasta bakes and melting." },
+            { id: 35, name: "Cheddar Cheese Slices 12-Pack", category: "Groceries", price: 5.49, icon: "🧀", stock: 65, rating: 4.5, description: "Sharp, melty cheddar cheese slices for grilled cheese sandwiches and burgers." },
+            { id: 36, name: "Cheese Burst Nachos & Dip Kit", category: "Groceries", price: 7.25, icon: "🌮", stock: 50, rating: 4.4, description: "Crunchy tortilla chips with a gooey cheesy nacho cheese dip." },
+            { id: 37, name: "Parmesan Cheese Wedge 200g", category: "Groceries", price: 10.99, icon: "🧀", stock: 30, rating: 4.8, description: "Aged Italian parmesan for grating over pasta, risotto and salads." },
+            { id: 38, name: "Penne Pasta & Tomato Sauce Combo", category: "Groceries", price: 7.99, icon: "🍝", stock: 55, rating: 4.5, description: "Italian penne pasta with a rich tomato basil sauce. Add cheese for a pasta bake." },
+            { id: 39, name: "Butter Chicken Ready Meal", category: "Groceries", price: 8.49, icon: "🍛", stock: 35, rating: 4.6, description: "Creamy tomato butter gravy with tender chicken, heat and eat. Serve with rice or naan." },
+            { id: 40, name: "Veg Biryani Ready Meal", category: "Groceries", price: 6.99, icon: "🍲", stock: 40, rating: 4.4, description: "Aromatic basmati rice with vegetables and spices, ready in 5 minutes." },
+            { id: 41, name: "Chocolate Chip Cookies Pack", category: "Groceries", price: 4.25, icon: "🍪", stock: 75, rating: 4.7, description: "Soft-baked cookies loaded with chocolate chips. Sweet dessert snack." },
+            { id: 42, name: "Vanilla Bean Ice Cream 1L", category: "Groceries", price: 6.50, icon: "🍨", stock: 35, rating: 4.6, description: "Rich and creamy vanilla bean ice cream. Sweet frozen dessert." },
+            { id: 43, name: "Salted Potato Chips Family Pack", category: "Groceries", price: 3.99, icon: "🥔", stock: 90, rating: 4.3, description: "Crispy salted potato chips, a crunchy party snack." },
+            { id: 44, name: "Beef Burger Patties 6-Pack", category: "Groceries", price: 11.99, icon: "🍔", stock: 28, rating: 4.5, description: "Juicy beef patties for grilling. Top with cheddar slices for a cheeseburger." }
+        ];
+
+
+        const DEFAULT_USERS = [
+            { id: 1, username: "manager", email: "manager@apex.com", password: "admin123", role: "manager", full_name: "Store Manager" },
+            { id: 2, username: "alex", email: "alex@vit.edu", password: "user123", role: "customer", full_name: "Alex Kumar" }
+        ];
+
+
+        let supabaseClient = null;
+        let isSupabaseConnected = false;
+        let supabaseConfig = {
+            url: localStorage.getItem("apex_supabase_url") || "",
+            key: localStorage.getItem("apex_supabase_key") || ""
+        };
+
+
+        let geminiApiKey = localStorage.getItem("apex_gemini_key") || "";
+
+
+        const savedSession = JSON.parse(localStorage.getItem("apex_session") || "null") || {
+            username: "guest",
+            email: "guest@store.com",
+            full_name: "Guest Visitor",
+            role: "guest"
+        };
+
+
+        const state = {
+            view: "shop",
+            authTab: "login",
+            category: "All",
+            search: "",
+            aiError: "",
+            aiSearchResults: null,
+            isAiSearching: false,
+            sortBy: "default",
+            cart: JSON.parse(localStorage.getItem("apex_cart") || "{}"),
+            currentUser: savedSession,
+            products: [...DEFAULT_PRODUCTS],
+            usersList: JSON.parse(localStorage.getItem("apex_mock_users") || JSON.stringify(DEFAULT_USERS)),
+            orders: JSON.parse(localStorage.getItem("apex_mock_orders") || "[]"),
+            discount: 0,
+            couponCode: ""
+        };
+
+
+        const PRODUCT_COLS = "product_id, name, price, icon, stock, rating, description, categories(name)";
+        const USER_COLS = "user_id, username, email, full_name, phone, role";
+        const ORDER_COLS = "order_id, order_code, order_date, status, discount, total_amount, user_id, users(full_name, email), addresses(line1, city, state, pincode), payments(method, status), order_items(quantity, unit_price, products(name))";
+        const DEFAULT_CATEGORY_NAMES = ["Electronics", "Audio & Wearables", "Gaming", "Fashion", "Home & Office", "Groceries"];
+        state.categories = [];
+
+        const mapProduct = p => ({ id: p.product_id, name: p.name, category: p.categories ? p.categories.name : "Other", price: Number(p.price), icon: p.icon, stock: p.stock, rating: Number(p.rating), description: p.description });
+        const mapUser = u => ({ id: u.user_id, username: u.username, email: u.email, full_name: u.full_name || u.username, phone: u.phone, role: u.role });
+        const mapOrder = o => {
+            const pay = Array.isArray(o.payments) ? o.payments[0] : o.payments;
+            const addr = Array.isArray(o.addresses) ? o.addresses[0] : o.addresses;
+            return {
+                id: o.order_id, order_code: o.order_code, created_at: o.order_date, status: o.status,
+                total_amount: o.total_amount, discount: o.discount,
+                customer_name: o.users ? o.users.full_name : "Unknown", user_email: o.users ? o.users.email : "",
+                payment_method: pay ? pay.method : "-", payment_status: pay ? pay.status : "",
+                address: addr ? `${addr.line1}, ${addr.city}, ${addr.state} - ${addr.pincode}` : "",
+                items: (o.order_items || []).map(i => ({
+                    name: i.products ? i.products.name : "Product", price: i.unit_price, quantity: i.quantity,
+                    item_total: (i.unit_price * i.quantity).toFixed(2)
+                }))
+            };
+        };
+        const categoryNames = () => state.categories.length ? state.categories.map(c => c.name) : DEFAULT_CATEGORY_NAMES;
+
+
+
+
+
+
+        const SEARCH_STOPWORDS = new Set(["i","a","an","the","need","want","looking","for","to","buy","get","me","my","some","show","find","please","with","and","or","of","in","on","is","are","do","you","have","any","can","something","like","that","good","best","new","am","im","it","thinking","making","make","something","cook","cooking","would","love","craving","today","tonight","what","about","ideas","hungry","eat","eating","tasty"]);
+        function keywordFilter(list, query) {
+            const norm = t => t.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+            const stem = w => w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w;
+            const words = norm(query).split(/\s+/).filter(w => w && !SEARCH_STOPWORDS.has(w)).map(stem);
+            if (!words.length) return list;
+            const SYNONYMS = {
+                cheese: ["cheese","mozzarella","cheddar","parmesan","mac"],
+                cheesy: ["cheese","mozzarella","cheddar","parmesan","mac"],
+                sweet: ["chocolate","cookie","ice cream","honey","dessert","sweet"],
+                dessert: ["chocolate","cookie","ice cream","dessert"],
+                spicy: ["spicy","masala","biryani","chicken"],
+                snack: ["snack","chips","nachos","cookie","nuts"],
+                snacks: ["snack","chips","nachos","cookie","nuts"],
+                pasta: ["pasta","penne","mac","noodle"],
+                meal: ["meal","biryani","chicken","pizza","pasta","mac"],
+                dinner: ["meal","biryani","chicken","pizza","pasta","mac","rice"],
+                lunch: ["meal","biryani","chicken","pizza","pasta","mac","rice","bread"],
+                breakfast: ["bread","yogurt","honey","coffee","almond"],
+                drink: ["coffee","cold brew"],
+                headphone: ["headphone","airpod","sony","earbud"],
+                earphone: ["headphone","airpod","earbud"],
+                earbuds: ["airpod","headphone","earbud"],
+                phone: ["iphone","phone"],
+                laptop: ["macbook","laptop"],
+                shoe: ["nike","sneaker","jordan"],
+                shoes: ["nike","sneaker","jordan"]
+            };
+            const variants = w => { const v = [w]; if (w.length > 4 && w.endsWith("y")) { v.push(w.slice(0, -1) + "e"); v.push(w.slice(0, -1)); } return v; };
+            const scored = list.map(p => {
+                const hay = norm(`${p.name} ${p.category} ${p.description || ""}`);
+                const nameHay = norm(p.name);
+                let score = 0;
+                words.forEach(w => {
+                    const vs = variants(w);
+                    const syn = (SYNONYMS[w] || []).map(x => new RegExp("\\b" + x + "(s|es)?\\b"));
+                    if (vs.some(x => nameHay.includes(x)) || syn.some(r => r.test(nameHay))) score += 3;
+                    else if (vs.some(x => hay.includes(x)) || syn.some(r => r.test(hay))) score += 1;
+                });
+                return { p, score };
+            }).filter(x => x.score > 0);
+            scored.sort((x, y) => y.score - x.score);
+            return scored.map(x => x.p);
+        }
+
+        async function executeAiSearch() {
+            const searchInput = document.getElementById("mainSearchInput");
+            const userQuery = searchInput ? searchInput.value.trim() : state.search.trim();
+
+            state.search = userQuery;
+            state.aiError = "";
+            if (!userQuery) {
+                showToast("Please enter a prompt or product query to search!");
+                state.aiSearchResults = null;
+                render();
+                return;
+            }
+
+            if (!geminiApiKey) {
+                openGeminiModal();
+                showToast("Please enter your Gemini API Key first!");
+                return;
+            }
+
+            if (state.isAiSearching) return;
+            state.aiSearchResults = null;
+            state.isAiSearching = true;
+            render();
+
+
+            const catalogLines = state.products.map(p =>
+                `${p.id} | ${p.name} | ${p.category} | $${p.price} | ${p.description || ""}`
+            ).join("\n");
+
+            const prompt = `You are an AI assistant embedded in an e-commerce search bar.
+Analyze the user's intent and select matching product IDs from the inventory list.
+
+User Search Query: "${userQuery}"
+
+Catalog Inventory (format: id | name | category | price | description):
+${catalogLines}
+
+Rules:
+- Understand the intent behind the query (cravings, meals, recipes, moods, occasions), not just exact words. Example: "something cheesy" should return ready meals AND cheese-based foods or cheese ingredients such as mac and cheese, cheese pizza, mozzarella, cheddar, nachos.
+- Be generous: include every product that plausibly fits (up to 12), best matches first.
+- Only use IDs that exist in the catalog.
+Return ONLY a valid JSON array of the matching product IDs (numbers), e.g. [1, 5, 8]. If nothing is relevant return []. No markdown, no explanation.`;
+
+            const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"];
+            const deadline = Date.now() + 8000;
+            let data = null, errMsg = "";
+
+            try {
+                for (const model of models) {
+                    const remaining = deadline - Date.now();
+                    if (remaining < 1500) { errMsg = errMsg || "Request timed out"; break; }
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), Math.min(6000, remaining));
+                    try {
+                        const gen = { responseMimeType: "application/json", temperature: 0 };
+                        if (model.startsWith("gemini-2.5")) gen.thinkingConfig = { thinkingBudget: 0 };
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+                            method: "POST",
+                            signal: ctrl.signal,
+                            headers: { "Content-Type": "application/json", "x-goog-api-key": geminiApiKey },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: gen })
+                        });
+                        const json = await response.json().catch(() => ({}));
+                        if (json.error) {
+                            errMsg = `${json.error.message || "Request failed"} (HTTP ${json.error.code || response.status}, ${model})`;
+                            const code = json.error.code;
+                            if (code === 404 || code === 400 && /model|thinking/i.test(json.error.message || "")) continue;
+                            break;
+                        }
+                        data = json;
+                        break;
+                    } catch (e) {
+                        errMsg = e && e.name === "AbortError" ? `Timed out waiting for ${model}` : `Network error: ${e && e.message ? e.message : e}`;
+                    } finally {
+                        clearTimeout(timer);
+                    }
+                }
+
+                if (data) {
+                    const rawText = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+                    let ids = null;
+                    try {
+                        const m = rawText.match(/\[[\s\S]*?\]/);
+                        ids = JSON.parse(m ? m[0] : rawText.trim());
+                    } catch (e) {
+                        console.error("JSON Parsing Error from AI Output:", e, rawText);
+                    }
+                    if (Array.isArray(ids)) {
+                        ids = ids.map(Number).filter(n => !isNaN(n) && state.products.some(p => Number(p.id) === n));
+                        if (ids.length) {
+                            state.aiSearchResults = ids;
+                            state.category = "All";
+                            showToast(`AI Search returned ${ids.length} recommended item(s) ✨`);
+                        } else {
+                            errMsg = "AI found no matching products";
+                        }
+                    } else {
+                        errMsg = rawText ? "AI returned an unreadable response" : (data.promptFeedback?.blockReason ? "AI blocked this query" : "AI returned an empty response");
+                    }
+                }
+            } catch (err) {
+                console.error("Gemini Error:", err);
+                errMsg = errMsg || (err && err.message) || "Unknown error";
+            } finally {
+                state.isAiSearching = false;
+                if (!Array.isArray(state.aiSearchResults)) {
+                    console.warn("AI search fell back to keyword search:", errMsg);
+                }
+                render();
+            }
+        }
+
+        function openGeminiModal() {
+            const container = document.getElementById("modalContainer");
+            container.innerHTML = `
+                <div class="modal-overlay" onclick="if(event.target === this) closeModals()">
+                    <div class="modal-card">
+                        <button class="modal-close" onclick="closeModals()">✕</button>
+                        <h2 style="margin-bottom: 8px;">✨ Gemini AI Search Key</h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                            Enter your Google Gemini API key to enable intent-aware, natural language search in SuperMart.
+                        </p>
+
+                        <form onsubmit="saveGeminiKey(event)">
+                            <div class="form-group">
+                                <label>Gemini API Key</label>
+                                <input class="form-control" type="password" id="modalGeminiKey" placeholder="AIzaSy..." value="${geminiApiKey}" required>
+                                <small style="font-size: 11px; color: var(--text-muted);">Stored locally in your browser session.</small>
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" class="place-order-btn" style="margin-top: 0; flex: 1;">
+                                    Save API Key
+                                </button>
+                                <button type="button" class="delete-btn" onclick="clearGeminiKey()">
+                                    Remove Key
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveGeminiKey(e) {
+            e.preventDefault();
+            const val = document.getElementById("modalGeminiKey").value.trim();
+            geminiApiKey = val;
+            localStorage.setItem("apex_gemini_key", val);
+            closeModals();
+            showToast("Gemini API Key saved successfully! ✨");
+        }
+
+        function clearGeminiKey() {
+            geminiApiKey = "";
+            localStorage.removeItem("apex_gemini_key");
+            closeModals();
+            showToast("Gemini API Key removed.");
+        }
+
+
+        function handleSearchInput(event) {
+            state.search = event.target.value;
+            state.aiSearchResults = null;
+            state.aiError = "";
+            render();
+        }
+
+        function handleSearchKeyDown(event) {
+            event.stopPropagation();
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                executeAiSearch();
+            }
+        }
+
+
+
+
+
+        function initSupabase() {
+            const dbBadgeDot = document.getElementById("dbDot");
+            const dbBadgeText = document.getElementById("dbStatusText");
+
+            if (!supabaseConfig.url || !supabaseConfig.key) {
+                isSupabaseConnected = false;
+                dbBadgeDot.className = "status-dot demo";
+                dbBadgeText.textContent = "Supabase: Setup Needed";
+                render();
+                return;
+            }
+
+            try {
+                if (window.supabase && window.supabase.createClient) {
+                    supabaseClient = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+                    testSupabaseConnection();
+                }
+            } catch (err) {
+                console.error("Supabase Init Error:", err);
+                isSupabaseConnected = false;
+                dbBadgeDot.className = "status-dot demo";
+                dbBadgeText.textContent = "Supabase: Error";
+            }
+        }
+
+        async function testSupabaseConnection() {
+            const dbBadgeDot = document.getElementById("dbDot");
+            const dbBadgeText = document.getElementById("dbStatusText");
+
+            try {
+                const { data: prodData, error: prodErr } = await supabaseClient.from("products").select(PRODUCT_COLS).order("product_id").limit(100);
+
+                if (prodErr) {
+                    console.warn("Supabase query error:", prodErr.message);
+                    isSupabaseConnected = false;
+                    dbBadgeDot.className = "status-dot demo";
+                    dbBadgeText.textContent = "Supabase: Needs Tables";
+                } else if (prodData && prodData.length > 0) {
+                    isSupabaseConnected = true;
+                    state.products = prodData.map(mapProduct);
+                    dbBadgeDot.className = "status-dot";
+                    dbBadgeText.textContent = "Supabase: Connected 🟢";
+                    showToast("Connected to live Supabase PostgreSQL Database!");
+                    fetchCategoriesFromSupabase();
+                    fetchUsersFromSupabase();
+                } else {
+                    isSupabaseConnected = true;
+                    dbBadgeDot.className = "status-dot";
+                    dbBadgeText.textContent = "Supabase: Connected (no data)";
+                    showToast("Tables are empty - run supabase_schema.sql to load the sample data.");
+                }
+            } catch (e) {
+                isSupabaseConnected = false;
+                dbBadgeDot.className = "status-dot demo";
+                dbBadgeText.textContent = "Supabase: Offline (Demo)";
+            }
+            render();
+        }
+
+
+        async function syncDefaultFoodToSupabase() {
+            if (state.currentUser.role !== "manager") { showToast("Only managers can sync products."); return; }
+            if (!(supabaseClient && isSupabaseConnected)) {
+                showToast("Connect Supabase first (click the DB badge in the top bar).");
+                return;
+            }
+            try {
+                const { data: cats, error: cErr } = await supabaseClient.from("categories").select("category_id, name");
+                if (cErr) { alert("Supabase Error (categories): " + cErr.message); return; }
+                const groceries = (cats || []).find(c => c.name === "Groceries");
+                if (!groceries) { alert("The 'Groceries' category does not exist in Supabase. Run the categories INSERT from the schema first."); return; }
+
+                const { data: existing, error: eErr } = await supabaseClient.from("products").select("name");
+                if (eErr) { alert("Supabase Error (products): " + eErr.message); return; }
+                const have = new Set((existing || []).map(p => p.name));
+
+                const rows = DEFAULT_PRODUCTS
+                    .filter(p => p.category === "Groceries" && !have.has(p.name))
+                    .map(p => ({ name: p.name, category_id: groceries.category_id, price: p.price, icon: p.icon, stock: p.stock, rating: p.rating, description: p.description }));
+
+                if (!rows.length) { showToast("All food items are already in Supabase ✅"); return; }
+
+                const { error } = await supabaseClient.from("products").insert(rows);
+                if (error) { alert("Supabase Error: " + error.message); return; }
+                showToast(`Added ${rows.length} food item(s) to Supabase ✅`);
+                await fetchCategoriesFromSupabase();
+                await fetchProductsFromSupabase();
+                render();
+            } catch (err) {
+                alert("Sync failed: " + err.message);
+            }
+        }
+
+        async function fetchCategoriesFromSupabase() {
+            if (!supabaseClient || !isSupabaseConnected) return;
+            const { data, error } = await supabaseClient.from("categories").select("category_id, name").order("category_id");
+            if (!error && data) { state.categories = data; render(); }
+        }
+
+        async function fetchProductsFromSupabase() {
+            if (!supabaseClient || !isSupabaseConnected) return;
+            try {
+                const { data, error } = await supabaseClient.from("products").select(PRODUCT_COLS).order("product_id", { ascending: true });
+                if (!error && data && data.length > 0) {
+                    state.products = data.map(mapProduct);
+                    render();
+                }
+            } catch (err) {
+                console.error("Fetch products error:", err);
+            }
+        }
+
+        async function fetchOrdersFromSupabase() {
+            if (!supabaseClient || !isSupabaseConnected) return;
+            try {
+                let query = supabaseClient.from("orders").select(ORDER_COLS).order("order_date", { ascending: false });
+
+                if (state.currentUser.role === "customer" && state.currentUser.id) {
+                    query = query.eq("user_id", state.currentUser.id);
+                } else if (state.currentUser.role === "guest") {
+                    state.orders = [];
+                    render();
+                    return;
+                }
+
+                const { data, error } = await query;
+                if (error) console.warn("Orders query error:", error.message);
+                if (!error && data) {
+                    state.orders = data.map(mapOrder);
+                    render();
+                }
+            } catch (err) {
+                console.error("Fetch orders error:", err);
+            }
+        }
+
+        async function fetchUsersFromSupabase() {
+            if (!supabaseClient || !isSupabaseConnected) return;
+            try {
+                const { data, error } = await supabaseClient.from("users").select(USER_COLS).neq("role", "guest").order("user_id", { ascending: true });
+                if (!error && data && data.length > 0) {
+                    state.usersList = data.map(mapUser);
+                }
+            } catch (err) {
+                console.error("Fetch users error:", err);
+            }
+        }
+
+
+
+
+
+        function loginAsGuest() {
+            state.currentUser = {
+                username: "guest_" + Math.floor(1000 + Math.random() * 9000),
+                email: "guest@store.com",
+                full_name: "Guest Visitor",
+                role: "guest"
+            };
+            localStorage.setItem("apex_session", JSON.stringify(state.currentUser));
+            state.view = "shop";
+            render();
+            showToast("Logged in as Guest! You can browse and shop.");
+        }
+
+        async function quickLogin(role) {
+            if (role === "manager") {
+                state.currentUser = {
+                    username: "manager",
+                    email: "manager@apex.com",
+                    full_name: "Store Manager",
+                    role: "manager"
+                };
+            } else {
+                state.currentUser = {
+                    username: "alex",
+                    email: "alex@vit.edu",
+                    full_name: "Alex Kumar",
+                    role: "customer"
+                };
+            }
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { data } = await supabaseClient.from("users").select(USER_COLS).eq("username", state.currentUser.username).maybeSingle();
+                    if (data) {
+                        state.currentUser = mapUser(data);
+                    }
+                } catch (e) {
+                    console.warn("Quick login lookup failed:", e);
+                }
+            }
+            localStorage.setItem("apex_session", JSON.stringify(state.currentUser));
+            state.view = "shop";
+            render();
+            showToast(`Logged in as ${state.currentUser.full_name} (${role.toUpperCase()})`);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const identifier = document.getElementById("authIdentifier").value.trim();
+            const password = document.getElementById("authPassword").value.trim();
+
+            if (!identifier || !password) {
+                alert("Please enter your username/email and password.");
+                return;
+            }
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { data, error } = await supabaseClient.rpc("fn_login", { p_identifier: identifier, p_password: password });
+
+                    if (error || !data || data.length === 0) {
+                        alert("Invalid credentials. Please verify username/email and password.");
+                        return;
+                    }
+
+                    state.currentUser = mapUser(data[0]);
+                    localStorage.setItem("apex_session", JSON.stringify(state.currentUser));
+                    state.view = "shop";
+                    render();
+                    showToast(`Welcome back, ${state.currentUser.full_name}! 👋`);
+                    return;
+                } catch (e) {
+                    console.error("Supabase login error:", e);
+                }
+            }
+
+            const matched = state.usersList.find(u =>
+                (u.username.toLowerCase() === identifier.toLowerCase() || (u.email || "").toLowerCase() === identifier.toLowerCase()) &&
+                u.password === password
+            );
+
+            if (matched) {
+                state.currentUser = { ...matched };
+                localStorage.setItem("apex_session", JSON.stringify(state.currentUser));
+                state.view = "shop";
+                render();
+                showToast(`Welcome back, ${matched.full_name}! 👋`);
+            } else {
+                alert("Invalid username/email or password.");
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const fullName = document.getElementById("regFullName").value.trim();
+            const username = document.getElementById("regUsername").value.trim().toLowerCase();
+            const email = document.getElementById("regEmail").value.trim().toLowerCase();
+            const password = document.getElementById("regPassword").value.trim();
+            const role = document.getElementById("regRole").value;
+
+            if (!username || !password) {
+                alert("Please fill in username and password.");
+                return;
+            }
+
+            const newUser = {
+                username,
+                email: email || (supabaseClient && isSupabaseConnected ? null : `${username}@apex.local`),
+                password,
+                role,
+                full_name: fullName || username
+            };
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { data, error } = await supabaseClient.rpc("fn_register_user", {
+                        p_username: username, p_email: email || null, p_password: password,
+                        p_full_name: fullName || username, p_role: role
+                    });
+                    if (error) {
+                        if (error.code === "23505") {
+                            alert("That username or email is already taken. Please choose another one.");
+                        } else {
+                            alert("Database error while creating account: " + error.message);
+                        }
+                        return;
+                    }
+                    state.currentUser = mapUser(data[0]);
+                } catch (e) {
+                    console.error("Supabase register error:", e);
+                    alert("Could not reach the database: " + e.message);
+                    return;
+                }
+            } else {
+                newUser.id = Date.now();
+                state.usersList.push(newUser);
+                localStorage.setItem("apex_mock_users", JSON.stringify(state.usersList));
+                state.currentUser = newUser;
+            }
+
+            localStorage.setItem("apex_session", JSON.stringify(state.currentUser));
+            state.view = "shop";
+            render();
+            showToast(`Account created as ${role.toUpperCase()} in Database! 🎉`);
+        }
+
+        function handleLogout() {
+            loginAsGuest();
+            showToast("Logged out. Switched to Guest mode.");
+        }
+
+
+
+
+
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            const currentPass = document.getElementById("currentPass").value.trim();
+            const newPass = document.getElementById("newPass").value.trim();
+            const confirmPass = document.getElementById("confirmPass").value.trim();
+
+            if (newPass !== confirmPass) {
+                alert("New passwords do not match!");
+                return;
+            }
+
+            if (newPass.length < 4) {
+                alert("Password must be at least 4 characters long.");
+                return;
+            }
+
+            if (supabaseClient && isSupabaseConnected && state.currentUser.id) {
+                try {
+                    const { data: ok, error } = await supabaseClient.rpc("fn_change_password", {
+                        p_user_id: state.currentUser.id, p_old: currentPass, p_new: newPass
+                    });
+
+                    if (error) {
+                        alert("Database password update error: " + error.message);
+                        return;
+                    }
+                    if (!ok) {
+                        alert("Current password is incorrect.");
+                        return;
+                    }
+                    showToast("Password updated (bcrypt hash) in Supabase Database! 🔐");
+                } catch (e) {
+                    alert("Update error: " + e.message);
+                    return;
+                }
+            } else {
+                const userObj = state.usersList.find(u => u.email === state.currentUser.email);
+                if (userObj) {
+                    userObj.password = newPass;
+                    localStorage.setItem("apex_mock_users", JSON.stringify(state.usersList));
+                }
+                showToast("Password updated in database (Local)");
+            }
+
+            event.target.reset();
+            setView("shop");
+        }
+
+        async function handleAdminResetUserPassword(userId, newPassword) {
+            if (!newPassword || newPassword.trim() === "") return;
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { error } = await supabaseClient.rpc("fn_admin_reset_password", { p_user_id: userId, p_new: newPassword });
+                    if (error) {
+                        alert("Error: " + error.message);
+                        return;
+                    }
+                    showToast("User password updated in Supabase Database! 🔑");
+                    fetchUsersFromSupabase();
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
+            } else {
+                const u = state.usersList.find(x => x.id == userId);
+                if (u) u.password = newPassword;
+                localStorage.setItem("apex_mock_users", JSON.stringify(state.usersList));
+                showToast("User password updated!");
+                render();
+            }
+        }
+
+        async function handleAdminDeleteUser(userId) {
+            if (!confirm("Are you sure you want to delete this user from the database?")) return;
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { error } = await supabaseClient.from("users").delete().eq("user_id", userId);
+                    if (error) {
+                        alert(error.code === "23503"
+                            ? "Cannot delete: this user has orders (foreign key RESTRICT on orders.user_id)."
+                            : "Delete error: " + error.message);
+                        return;
+                    }
+                    showToast("User deleted from Supabase Database");
+                    fetchUsersFromSupabase();
+                    render();
+                } catch (e) {
+                    alert("Delete error: " + e.message);
+                }
+            } else {
+                state.usersList = state.usersList.filter(u => u.id != userId);
+                localStorage.setItem("apex_mock_users", JSON.stringify(state.usersList));
+                showToast("User deleted");
+                render();
+            }
+        }
+
+
+
+
+
+        function saveCart() {
+            localStorage.setItem("apex_cart", JSON.stringify(state.cart));
+            updateHeaderCartBadge();
+        }
+
+        function updateHeaderCartBadge() {
+            const count = Object.values(state.cart).reduce((total, q) => total + q, 0);
+            const badge = document.getElementById("headerCartCount");
+            if (badge) badge.textContent = count;
+        }
+
+        function addToCart(productId) {
+            state.cart[productId] = (state.cart[productId] || 0) + 1;
+            saveCart();
+            render();
+            showToast("Item added to cart! 🛒");
+        }
+
+        function removeFromCart(productId) {
+            if (!state.cart[productId]) return;
+            state.cart[productId]--;
+            if (state.cart[productId] <= 0) {
+                delete state.cart[productId];
+            }
+            saveCart();
+            render();
+        }
+
+        function deleteFromCart(productId) {
+            delete state.cart[productId];
+            saveCart();
+            render();
+            showToast("Item removed from cart");
+        }
+
+        function clearCart() {
+            state.cart = {};
+            state.discount = 0;
+            state.couponCode = "";
+            saveCart();
+            render();
+            showToast("Cart cleared");
+        }
+
+        function applyCoupon() {
+            const codeInput = document.getElementById("couponInput");
+            if (!codeInput) return;
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (code === "VIT20") {
+                state.discount = 0.20;
+                state.couponCode = "VIT20 (20% OFF)";
+                showToast("Coupon Applied! 20% discount added 🎉");
+            } else if (code === "WELCOME10") {
+                state.discount = 0.10;
+                state.couponCode = "WELCOME10 (10% OFF)";
+                showToast("Coupon Applied! 10% discount added 🎉");
+            } else {
+                showToast("Invalid promo code. Try 'VIT20'!");
+            }
+            render();
+        }
+
+        function getCartTotals() {
+            let subtotal = 0;
+            let totalItems = 0;
+
+            for (const [id, qty] of Object.entries(state.cart)) {
+                const prod = state.products.find(p => p.id == id);
+                if (prod) {
+                    subtotal += prod.price * qty;
+                    totalItems += qty;
+                }
+            }
+
+            const discountAmount = subtotal * state.discount;
+            const tax = (subtotal - discountAmount) * 0.05;
+            const shipping = subtotal > 150 || subtotal === 0 ? 0 : 15;
+            const grandTotal = Math.max(0, subtotal - discountAmount + tax + shipping);
+
+            return {
+                subtotal: subtotal.toFixed(2),
+                discountAmount: discountAmount.toFixed(2),
+                tax: tax.toFixed(2),
+                shipping: shipping.toFixed(2),
+                grandTotal: grandTotal.toFixed(2),
+                totalItems
+            };
+        }
+
+        async function processCheckout(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("custName").value.trim();
+            const email = document.getElementById("custEmail").value.trim();
+            const phone = document.getElementById("custPhone").value.trim();
+            const address = document.getElementById("custAddress").value.trim();
+            const city = document.getElementById("custCity").value.trim();
+            const addrState = document.getElementById("custState").value.trim();
+            const pincode = document.getElementById("custPincode").value.trim();
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "Credit Card";
+
+            if (!name || !address) {
+                alert("Please provide your name and delivery address!");
+                return;
+            }
+
+            const totals = getCartTotals();
+            if (totals.totalItems === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+
+            const orderItems = Object.entries(state.cart).map(([id, qty]) => {
+                const prod = state.products.find(p => p.id == id);
+                return {
+                    product_id: Number(id),
+                    name: prod ? prod.name : "Product #" + id,
+                    price: prod ? prod.price : 0,
+                    quantity: qty,
+                    item_total: (prod ? prod.price * qty : 0).toFixed(2)
+                };
+            });
+
+            let orderCode = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+            const orderPayload = {
+                order_code: orderCode,
+                user_email: (state.currentUser && state.currentUser.role !== "guest" && state.currentUser.email) ? state.currentUser.email : (email || "guest@store.com"),
+                customer_name: name,
+                phone: phone,
+                address: `${address}, ${city}, ${addrState} - ${pincode}`,
+                payment_method: paymentMethod,
+                total_amount: parseFloat(totals.grandTotal),
+                discount: parseFloat(totals.discountAmount),
+                status: "Confirmed",
+                items: orderItems
+            };
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { data, error } = await supabaseClient.rpc("fn_place_order", {
+                        p_user_id: (state.currentUser.role !== "guest" && state.currentUser.id) ? state.currentUser.id : null,
+                        p_name: name, p_phone: phone, p_line1: address, p_city: city, p_state: addrState, p_pincode: pincode,
+                        p_method: paymentMethod, p_discount_rate: state.discount,
+                        p_items: orderItems.map(i => ({ product_id: i.product_id, quantity: i.quantity }))
+                    });
+                    if (error) {
+                        alert("Order failed: " + error.message);
+                        return;
+                    }
+                    orderCode = data[0].order_code;
+                    showToast(`Order #${orderCode} saved in Supabase PostgreSQL! 🚀`);
+                    fetchProductsFromSupabase();
+                    fetchOrdersFromSupabase();
+                } catch (e) {
+                    saveOrderLocally(orderPayload);
+                }
+            } else {
+                saveOrderLocally(orderPayload);
+                showToast(`Order #${orderCode} placed (Local Demo)!`);
+            }
+
+            recordDbFlow(
+                `Place Order (#${orderCode}) - Customer: ${name}`,
+                `SELECT * FROM fn_place_order(user_id, '${name}', '${phone}', '${address}', '${city}', '${addrState}', '${pincode}', '${paymentMethod}', ${state.discount}, '[${totals.totalItems} items as JSONB]');\n\n-- Inside the function: INSERT addresses, orders, order_items, payments\n-- Triggers: trg_check_stock (BEFORE) + trg_reduce_stock (AFTER) on order_items`,
+                "PostgreSQL Transaction: fn_place_order writes address, order, order_items and payment; row triggers validate and decrement stock",
+                `INSERT into addresses, orders, order_items, payments; UPDATE products (stock decremented by trigger)`,
+                `Order #${orderCode} Confirmed & Recorded in Database`
+            );
+
+            clearCart();
+            setView("orders");
+        }
+
+        function saveOrderLocally(order) {
+            order.created_at = new Date().toISOString();
+            (order.items || []).forEach(i => {
+                const prod = state.products.find(p => p.id == i.product_id);
+                if (prod) prod.stock = Math.max(0, prod.stock - i.quantity);
+            });
+            state.orders.unshift(order);
+            localStorage.setItem("apex_mock_orders", JSON.stringify(state.orders));
+        }
+
+
+
+
+
+        async function handleAddProduct(event) {
+            event.preventDefault();
+            if (state.currentUser.role !== "manager") {
+                alert("Access Denied: Only Manager accounts can add products.");
+                return;
+            }
+
+            const name = document.getElementById("newProdName").value.trim();
+            const category = document.getElementById("newProdCategory").value;
+            const price = parseFloat(document.getElementById("newProdPrice").value);
+            const icon = document.getElementById("newProdIcon").value.trim() || "📦";
+            const stock = parseInt(document.getElementById("newProdStock").value) || 10;
+            const desc = document.getElementById("newProdDesc").value.trim();
+
+            const catRow = state.categories.find(c => c.name === category);
+            const newProduct = {
+                name,
+                category_id: catRow ? catRow.category_id : undefined,
+                category,
+                price,
+                icon,
+                stock,
+                rating: 5.0,
+                description: desc
+            };
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { category: _c, ...dbProduct } = newProduct;
+                    const { error } = await supabaseClient.from("products").insert([dbProduct]);
+                    if (error) {
+                        alert("Supabase Error: " + error.message);
+                    } else {
+                        showToast("Product inserted into Supabase Database! ✅");
+                        fetchProductsFromSupabase();
+                    }
+                } catch (err) {
+                    alert("Insert failed: " + err.message);
+                }
+            } else {
+                newProduct.id = Date.now();
+                state.products.unshift(newProduct);
+                showToast(`Product "${name}" added to local catalog`);
+                render();
+            }
+
+            recordDbFlow(
+                `Manager Insert Product: "${name}"`,
+                `INSERT INTO public.products (name, category_id, price, stock, description)\nVALUES ('${name}', (SELECT category_id FROM categories WHERE name='${category}'), ${price}, ${stock}, '${desc}');`,
+                "PostgreSQL Execution: Generates auto-increment ID & writes row to disk",
+                "INSERT 1 new row into public.products table",
+                `Product "${name}" added to Database catalog`
+            );
+
+            event.target.reset();
+        }
+
+        async function handleUpdateOrderStatus(orderId, status) {
+            if (supabaseClient && isSupabaseConnected) {
+                const { error } = await supabaseClient.rpc("fn_run_update_order_status", { p_order_id: orderId, p_status: status });
+                if (error) { alert("Status update failed: " + error.message); return; }
+                showToast(`Order status -> ${status} (payment synced, stock restored if cancelled)`);
+                fetchOrdersFromSupabase();
+                fetchProductsFromSupabase();
+            } else {
+                const o = state.orders.find(x => x.id == orderId);
+                if (o) o.status = status;
+                render();
+            }
+            recordDbFlow(`Manager sets order #${orderId} to ${status}`,
+                `CALL sp_update_order_status(${orderId}, '${status}');`,
+                "Procedure updates orders, syncs payments; trigger trg_restore_stock fires on 'Cancelled'",
+                "UPDATE orders, UPDATE payments, (UPDATE products if cancelled)", `Order #${orderId} is now ${status}`);
+        }
+
+        async function handleRestockLowStock() {
+            if (!(supabaseClient && isSupabaseConnected)) { alert("Connect Supabase to run the stored procedure."); return; }
+            const { data, error } = await supabaseClient.rpc("fn_run_restock", { p_threshold: 10, p_add: 20 });
+            if (error) { alert("Procedure error: " + error.message); return; }
+            showToast(`Cursor procedure restocked ${data} low-stock product(s)`);
+            fetchProductsFromSupabase();
+            recordDbFlow("Manager restocks low-stock products",
+                "CALL sp_restock_low_stock(10, 20);",
+                "Procedure opens CURSOR cur_low over products WHERE stock < 10 and updates each row",
+                "UPDATE products (+20 stock) for every row fetched by the cursor", `${data} product(s) restocked`);
+        }
+
+        async function handleDeleteProduct(productId) {
+            if (state.currentUser.role !== "manager") {
+                alert("Access Denied: Only Manager accounts can delete products.");
+                return;
+            }
+
+            if (!confirm("Are you sure you want to remove this product from the database?")) return;
+
+            if (supabaseClient && isSupabaseConnected) {
+                try {
+                    const { error } = await supabaseClient.from("products").delete().eq("product_id", productId);
+                    if (error) {
+                        alert(error.code === "23503"
+                            ? "Cannot delete: this product appears in past orders (FK RESTRICT on order_items.product_id)."
+                            : "Supabase delete error: " + error.message);
+                    } else {
+                        showToast("Product deleted from Supabase Database");
+                        fetchProductsFromSupabase();
+                    }
+                } catch (err) {
+                    alert("Delete failed: " + err.message);
+                }
+            } else {
+                state.products = state.products.filter(p => p.id != productId);
+                showToast("Product removed from catalog");
+                render();
+            }
+
+            recordDbFlow(
+                `Manager Delete Product (ID: ${productId})`,
+                `DELETE FROM public.products WHERE product_id = ${productId};`,
+                "PostgreSQL Index scan & row removal",
+                "DELETE 1 row from public.products table",
+                `Product #${productId} removed from Database`
+            );
+        }
+
+
+
+
+
+        function setView(view, category) {
+            state.view = view;
+            if (category) state.category = category;
+            state.search = "";
+            state.aiSearchResults = null;
+            render();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function render() {
+            _renderInner();
+            if (window.__restoreSearchFocus) {
+                const el = document.getElementById("mainSearchInput");
+                if (el) {
+                    el.focus();
+                    try { el.setSelectionRange(window.__restoreSearchFocus.s, window.__restoreSearchFocus.e); } catch (e) {}
+                }
+                window.__restoreSearchFocus = null;
+            }
+        }
+
+        function _renderInner() {
+            const container = document.getElementById("mainContainer");
+            if (!container) return;
+
+
+            const headerRoleBadge = document.getElementById("headerRoleBadge");
+            if (headerRoleBadge) {
+                const r = state.currentUser.role;
+                headerRoleBadge.innerHTML = `
+                    <span class="role-pill ${r}">
+                        ${r === 'manager' ? '⭐ Manager' : r === 'customer' ? '👤 Customer' : '🚶 Guest'}
+                    </span>
+                `;
+            }
+
+            updateHeaderCartBadge();
+
+
+            if (state.view === "auth") {
+                renderAuthPage(container);
+                return;
+            }
+
+
+            let productList = state.products;
+
+
+            if (Array.isArray(state.aiSearchResults)) {
+                productList = productList.filter(p => state.aiSearchResults.includes(Number(p.id)));
+            } else {
+                if (state.category !== "All") {
+                    productList = productList.filter(p => p.category === state.category);
+                }
+                if (state.search.trim() && !state.isAiSearching) {
+                    productList = keywordFilter(productList, state.search);
+                }
+            }
+
+            if (state.sortBy === "price-low") {
+                productList = [...productList].sort((a, b) => a.price - b.price);
+            } else if (state.sortBy === "price-high") {
+                productList = [...productList].sort((a, b) => b.price - a.price);
+            } else if (state.sortBy === "rating") {
+                productList = [...productList].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            }
+
+
+            let mainContentHtml = "";
+
+            if (state.view === "shop") {
+                mainContentHtml = `
+                    <div class="tools">
+                        <div class="search-bar-container">
+                            <input 
+                                class="search-bar" 
+                                id="mainSearchInput"
+                                placeholder="🔍 Ask AI or search products (e.g. 'i need airpods')..." 
+                                value="${String(state.search).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}"
+                                oninput="handleSearchInput(event)"
+                                onkeydown="handleSearchKeyDown(event)"
+                            >
+                            <button 
+                                class="ai-search-btn" 
+                                onclick="executeAiSearch()"
+                                ${state.isAiSearching ? 'disabled' : ''}
+                            >
+                                ${state.isAiSearching ? '✨ Thinking...' : '✨ AI Search'}
+                            </button>
+                        </div>
+                        <select class="sort-select" onchange="state.sortBy = this.value; render();">
+                            <option value="default" ${state.sortBy === 'default' ? 'selected' : ''}>Sort: Featured</option>
+                            <option value="price-low" ${state.sortBy === 'price-low' ? 'selected' : ''}>Price: Low to High</option>
+                            <option value="price-high" ${state.sortBy === 'price-high' ? 'selected' : ''}>Price: High to Low</option>
+                            <option value="rating" ${state.sortBy === 'rating' ? 'selected' : ''}>Top Rated</option>
+                        </select>
+                    </div>
+
+                    ${Array.isArray(state.aiSearchResults) ? `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #faf5ff; border: 1px solid #e9d5ff; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;">
+                            <span style="font-size: 13px; color: var(--manager-purple); font-weight: 600;">
+                                ✨ Showing Gemini AI Recommended Results (${productList.length} items)
+                            </span>
+                            <button onclick="state.aiSearchResults = null; state.search = ''; render();" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; text-decoration: underline;">
+                                Clear AI Filter
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    ${productList.length === 0 ? `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <div style="font-size: 40px; margin-bottom: 10px;">🔍</div>
+                            <h3>No products match your search.</h3>
+                            <p>Try searching for "iPhone", "Sony", "Nike", or click ✨ AI Search for automatic recommendations.</p>
+                        </div>
+                    ` : `
+                        <div class="cards">
+                            ${productList.map(item => {
+                    const qty = state.cart[item.id] || 0;
+                    return `
+                                    <div class="card">
+                                        <span class="card-badge">${item.category}</span>
+                                        <div class="icon">${item.icon || '📦'}</div>
+                                        <h3>${item.name}</h3>
+                                        <p class="card-desc">${item.description || "Premium high-grade product."}</p>
+                                        
+                                        <div class="card-meta">
+                                            <div class="price">$${parseFloat(item.price).toFixed(2)}</div>
+                                            <div class="rating">⭐ ${item.rating || 4.8}</div>
+                                        </div>
+
+                                        <div class="stock-indicator">Stock Available: ${item.stock || 12} units</div>
+                                        <button class="add-btn-basket" style="background:#f1f5f9; color:var(--text-main, #0f172a); border:1px solid var(--border); margin-bottom:6px;" onclick="openReviewsModal(${item.id})">💬 Reviews</button>
+
+                                        ${qty === 0 ? `
+                                            <button class="add-btn-basket" onclick="addToCart(${item.id})">
+                                                Add to Cart
+                                            </button>
+                                        ` : `
+                                            <div class="quantity-actions">
+                                                <button class="qty-btn minus" onclick="removeFromCart(${item.id})">-</button>
+                                                <span class="qty-text">${qty}</span>
+                                                <button class="qty-btn plus" onclick="addToCart(${item.id})">+</button>
+                                            </div>
+                                        `}
+                                    </div>
+                                `;
+                }).join("")}
+                        </div>
+                    `}
+                `;
+            } else if (state.view === "cart") {
+                const totals = getCartTotals();
+                const cartIds = Object.keys(state.cart);
+
+                mainContentHtml = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>🛒 Your Shopping Cart (${totals.totalItems} items)</h2>
+                        ${cartIds.length > 0 ? `<button class="clear-btn" onclick="clearCart()">Empty Cart</button>` : ''}
+                    </div>
+
+                    ${cartIds.length === 0 ? `
+                        <div style="text-align: center; padding: 50px 20px;">
+                            <div style="font-size: 56px; margin-bottom: 14px;">🛍️</div>
+                            <h3>Your Cart is Empty</h3>
+                            <p style="color: var(--text-muted); margin: 8px 0 20px 0;">Add any products to cart and proceed to checkout.</p>
+                            <button class="add-btn-basket" style="max-width: 200px; margin: 0 auto;" onclick="setView('shop', 'All')">Browse Catalog</button>
+                        </div>
+                    ` : `
+                        <div class="cart-list">
+                            ${cartIds.map(id => {
+                    const prod = state.products.find(p => p.id == id);
+                    if (!prod) return '';
+                    const q = state.cart[id];
+                    return `
+                                    <div class="cart-item-row">
+                                        <div class="cart-item-info">
+                                            <div class="cart-item-icon">${prod.icon || '📦'}</div>
+                                            <div>
+                                                <h4 style="font-size: 15px; margin-bottom: 4px;">${prod.name}</h4>
+                                                <span style="font-size: 13px; color: var(--text-muted);">$${parseFloat(prod.price).toFixed(2)} each</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="cart-item-actions">
+                                            <div class="quantity-actions" style="width: 110px;">
+                                                <button class="qty-btn minus" onclick="removeFromCart(${id})">-</button>
+                                                <span class="qty-text">${q}</span>
+                                                <button class="qty-btn plus" onclick="addToCart(${id})">+</button>
+                                            </div>
+                                            <div style="font-weight: 700; width: 80px; text-align: right;">
+                                                $${(prod.price * q).toFixed(2)}
+                                            </div>
+                                            <button class="delete-btn" onclick="deleteFromCart(${id})" title="Remove">🗑️</button>
+                                        </div>
+                                    </div>
+                                `;
+                }).join("")}
+                        </div>
+
+                        <div class="checkout-summary">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span>$${totals.subtotal}</span>
+                            </div>
+                            ${state.discount > 0 ? `
+                                <div class="summary-row" style="color: var(--accent); font-weight: 600;">
+                                    <span>Discount (${state.couponCode})</span>
+                                    <span>-$${totals.discountAmount}</span>
+                                </div>
+                            ` : ''}
+                            <div class="summary-row">
+                                <span>Estimated Tax (5%)</span>
+                                <span>$${totals.tax}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Shipping</span>
+                                <span>${totals.shipping == 0 ? '<strong style="color:var(--accent)">FREE</strong>' : '$' + totals.shipping}</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Grand Total</span>
+                                <span>$${totals.grandTotal}</span>
+                            </div>
+
+                            <button class="place-order-btn" onclick="setView('checkout')">
+                                Proceed to Checkout ➔
+                            </button>
+                        </div>
+                    `}
+                `;
+            } else if (state.view === "checkout") {
+                const totals = getCartTotals();
+
+                mainContentHtml = `
+                    <h2>💳 Checkout & Order Confirmation</h2>
+                    
+                    <form onsubmit="processCheckout(event)">
+                        <div class="checkout-grid">
+                            <div>
+                                <h3 style="margin-bottom: 12px; font-size: 15px;">1. Customer & Delivery Address</h3>
+                                
+                                <div class="form-group">
+                                    <label>Customer Name *</label>
+                                    <input class="form-control" id="custName" value="${state.currentUser.role !== 'guest' ? state.currentUser.full_name : ''}" placeholder="e.g. John Doe" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Email Address (Optional)</label>
+                                    <input class="form-control" type="email" id="custEmail" value="${state.currentUser.role !== 'guest' && state.currentUser.email && !state.currentUser.email.endsWith('@apex.local') ? state.currentUser.email : ''}" placeholder="john@example.com">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Phone Number *</label>
+                                    <input class="form-control" type="tel" id="custPhone" placeholder="+91 9876543210" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Shipping Address *</label>
+                                    <input class="form-control" id="custAddress" placeholder="Room/Hostel Block, Street" value="VIT University Campus" required>
+                                </div>
+                                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                                    <div class="form-group"><label>City *</label><input class="form-control" id="custCity" value="Vellore" required></div>
+                                    <div class="form-group"><label>State *</label><input class="form-control" id="custState" value="Tamil Nadu" required></div>
+                                    <div class="form-group"><label>PIN *</label><input class="form-control" id="custPincode" value="632014" pattern="[0-9]{5,6}" title="5 or 6 digits" required></div>
+                                </div>
+
+                                <h3 style="margin: 16px 0 10px 0; font-size: 15px;">2. Payment Method</h3>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                                        <input type="radio" name="paymentMethod" value="Credit/Debit Card" checked>
+                                        <span>💳 Credit / Debit Card</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                                        <input type="radio" name="paymentMethod" value="UPI">
+                                        <span>⚡ Instant UPI / QR</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
+                                        <input type="radio" name="paymentMethod" value="Cash on Delivery">
+                                        <span>💵 Cash on Delivery</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="margin-bottom: 12px; font-size: 15px;">3. Order Breakdown</h3>
+                                <div class="checkout-summary">
+                                    <div class="coupon-box">
+                                        <input class="form-control" id="couponInput" placeholder="Promo code (VIT20)">
+                                        <button type="button" class="coupon-btn" onclick="applyCoupon()">Apply</button>
+                                    </div>
+
+                                    <div class="summary-row">
+                                        <span>Items Total (${totals.totalItems})</span>
+                                        <span>$${totals.subtotal}</span>
+                                    </div>
+                                    ${state.discount > 0 ? `
+                                        <div class="summary-row" style="color: var(--accent); font-weight: 600;">
+                                            <span>Promo Discount</span>
+                                            <span>-$${totals.discountAmount}</span>
+                                        </div>
+                                    ` : ''}
+                                    <div class="summary-row">
+                                        <span>Taxes (5%)</span>
+                                        <span>$${totals.tax}</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span>Shipping</span>
+                                        <span>${totals.shipping == 0 ? '<strong style="color:var(--accent)">FREE</strong>' : '$' + totals.shipping}</span>
+                                    </div>
+                                    <div class="summary-row total">
+                                        <span>Payable Amount</span>
+                                        <span>$${totals.grandTotal}</span>
+                                    </div>
+
+                                    <button type="submit" class="place-order-btn">
+                                        Place Order ($${totals.grandTotal})
+                                    </button>
+                                    <p style="font-size: 11.5px; text-align: center; color: var(--text-muted); margin-top: 10px;">
+                                        🔒 Order record is stored directly in Supabase PostgreSQL <code>orders</code> table.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                `;
+            } else if (state.view === "orders") {
+                mainContentHtml = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <h2>📦 Database Order History (${state.currentUser.role === 'manager' ? 'All Customer Orders' : 'My Orders'})</h2>
+                        <button class="add-btn-basket" style="max-width: 140px;" onclick="fetchOrdersFromSupabase()">🔄 Refresh</button>
+                    </div>
+
+                    ${state.orders.length === 0 ? `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <div style="font-size: 44px; margin-bottom: 8px;">📦</div>
+                            <h3>No Orders Recorded in Database Yet</h3>
+                            <p>Place an order through the cart & checkout to see it logged in Supabase!</p>
+                            <button class="add-btn-basket" style="max-width: 160px; margin: 14px auto 0;" onclick="setView('shop', 'All')">Go Shopping</button>
+                        </div>
+                    ` : `
+                        <div class="orders-list">
+                            ${state.orders.map(o => `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div>
+                                            <strong style="font-size: 15px; color: var(--primary);">${o.order_code}</strong>
+                                            <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">
+                                                ${o.created_at ? new Date(o.created_at).toLocaleString() : 'Recent'}
+                                            </span>
+                                        </div>
+                                        ${(state.currentUser.role === 'manager' && o.id) ? `
+                                            <select class="form-control" style="width:auto; padding:4px 8px; font-size:12px;" onchange="handleUpdateOrderStatus(${o.id}, this.value)">
+                                                ${['Confirmed','Shipped','Delivered','Cancelled'].map(st => `<option ${st === o.status ? 'selected' : ''}>${st}</option>`).join("")}
+                                            </select>` : `<span class="order-status">${o.status || 'Confirmed'}</span>`}
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px;">
+                                        <div><strong>Customer:</strong> ${o.customer_name} (${o.user_email || 'No email'})</div>
+                                        <div><strong>Payment:</strong> ${o.payment_method || 'Card'}${o.payment_status ? ' (' + o.payment_status + ')' : ''}</div>
+                                        <div><strong>Total:</strong> <strong style="color: var(--accent); font-size: 15px;">$${parseFloat(o.total_amount).toFixed(2)}</strong></div>
+                                    </div>
+
+                                    <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;">
+                                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">ITEMS:</div>
+                                        <ul style="padding-left: 18px; font-size: 12.5px;">
+                                            ${(Array.isArray(o.items) ? o.items : []).map(i => `
+                                                <li>${i.name} × ${i.quantity} — <strong>$${i.item_total || (i.price * i.quantity).toFixed(2)}</strong></li>
+                                            `).join("")}
+                                        </ul>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    `}
+                `;
+            } else if (state.view === "admin_products") {
+
+                if (state.currentUser.role !== "manager") {
+                    mainContentHtml = `
+                        <div style="text-align: center; padding: 50px;">
+                            <div style="font-size: 48px; margin-bottom: 12px;">🔒</div>
+                            <h2>Access Restricted to Store Managers</h2>
+                            <p style="color: var(--text-muted); margin: 8px 0 16px 0;">Please sign in with a Manager account to manage products in the database.</p>
+                            <button class="add-btn-basket" style="max-width: 220px; margin: 0 auto;" onclick="quickLogin('manager')">Quick Login as Manager</button>
+                        </div>
+                    `;
+                } else {
+                    mainContentHtml = `
+                        <h2>⭐ Manager Product Management (Supabase DB)</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 18px; font-size: 13.5px;">
+                            Insert new products or delete items directly from the cloud PostgreSQL <code>products</code> table.
+                        </p>
+                        <button class="add-btn-basket" style="max-width: 360px; margin-bottom: 18px;" onclick="syncDefaultFoodToSupabase()">
+                            🍕 Sync Default Food Items to Supabase
+                        </button>
+
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
+                            <h3 style="font-size: 15px; margin-bottom: 12px;">➕ Insert New Product</h3>
+                            <form onsubmit="handleAddProduct(event)">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                    <div class="form-group">
+                                        <label>Product Title *</label>
+                                        <input class="form-control" id="newProdName" placeholder="e.g. Wireless Pro Earbuds" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category *</label>
+                                        <select class="form-control" id="newProdCategory">
+                                            ${categoryNames().map(c => `<option value="${c}">${c}</option>`).join("")}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Price ($) *</label>
+                                        <input class="form-control" type="number" step="0.01" id="newProdPrice" placeholder="99.99" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Emoji / Icon</label>
+                                        <input class="form-control" id="newProdIcon" placeholder="🎧" value="📦">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Initial Stock</label>
+                                        <input class="form-control" type="number" id="newProdStock" placeholder="25" value="15">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Short Description</label>
+                                        <input class="form-control" id="newProdDesc" placeholder="Product details & specs...">
+                                    </div>
+                                </div>
+                                <button type="submit" class="add-btn-basket" style="background: var(--manager-purple); max-width: 240px;">
+                                    ➕ Insert to Supabase DB
+                                </button>
+                            </form>
+                        </div>
+
+                        <button class="add-btn-basket" style="background: var(--manager-purple); max-width: 320px; margin-bottom: 16px;" onclick="handleRestockLowStock()">
+                            📦 Restock low stock (CALL sp_restock_low_stock)
+                        </button>
+                        <h3 style="font-size: 15px; margin-bottom: 12px;">Live Products in Database (${state.products.length})</h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${state.products.map(p => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 22px;">${p.icon || '📦'}</span>
+                                        <div>
+                                            <strong>${p.name}</strong>
+                                            <span style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">(${p.category})</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 16px;">
+                                        <span style="font-weight: 700; color: var(--primary);">$${parseFloat(p.price).toFixed(2)}</span>
+                                        <button class="delete-btn" onclick="handleDeleteProduct(${p.id})">Delete</button>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    `;
+                }
+            } else if (state.view === "admin_users") {
+
+                if (state.currentUser.role !== "manager") {
+                    mainContentHtml = `
+                        <div style="text-align: center; padding: 50px;">
+                            <div style="font-size: 48px; margin-bottom: 12px;">🔒</div>
+                            <h2>Access Restricted to Store Managers</h2>
+                            <button class="add-btn-basket" style="max-width: 220px; margin: 16px auto 0;" onclick="quickLogin('manager')">Quick Login as Manager</button>
+                        </div>
+                    `;
+                } else {
+                    mainContentHtml = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                            <div>
+                                <h2>👥 Manage Users & Passwords (Supabase DB)</h2>
+                                <p style="color: var(--text-muted); font-size: 13px;">View registered accounts, reset user passwords, or delete accounts from the database.</p>
+                            </div>
+                            <button class="add-btn-basket" style="max-width: 140px;" onclick="fetchUsersFromSupabase(); render();">🔄 Refresh DB</button>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${state.usersList.map(u => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid var(--border); padding: 14px 18px; border-radius: 8px;">
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                            <strong>${u.full_name || u.username}</strong>
+                                            <span class="role-pill ${u.role}">${u.role}</span>
+                                        </div>
+                                        <div style="font-size: 12.5px; color: var(--text-muted);">
+                                            Username: <code>${u.username}</code> &bull; Email: <code>${u.email || '—'}</code>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <button style="padding: 6px 12px; font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer;" 
+                                            onclick="const newP = prompt('Enter new password for ${u.username}:', 'newpass123'); if(newP) handleAdminResetUserPassword(${u.id}, newP);">
+                                            🔑 Reset Password
+                                        </button>
+                                        ${u.username !== 'manager' ? `
+                                            <button class="delete-btn" onclick="handleAdminDeleteUser(${u.id})">Delete</button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>
+                    `;
+                }
+            } else if (state.view === "change_password") {
+                mainContentHtml = `
+                    <h2>🔐 Manage Password in Database</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 13.5px;">
+                        Update your password stored in the Supabase <code>users</code> table.
+                    </p>
+
+                    <div style="max-width: 440px; background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md);">
+                        <form onsubmit="handleChangePassword(event)">
+                            <div class="form-group">
+                                <label>Logged In Account</label>
+                                <input class="form-control" value="${state.currentUser.email} (${state.currentUser.role})" disabled style="background:#e2e8f0;">
+                            </div>
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input class="form-control" type="password" id="currentPass" placeholder="Enter current password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input class="form-control" type="password" id="newPass" placeholder="Enter new password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input class="form-control" type="password" id="confirmPass" placeholder="Confirm new password" required>
+                            </div>
+                            <button type="submit" class="place-order-btn">
+                                Save New Password in Database
+                            </button>
+                        </form>
+                    </div>
+                `;
+            }
+
+
+            const totals = getCartTotals();
+            const isManager = state.currentUser.role === "manager";
+
+
+            const _prev = document.activeElement;
+            const _hadSearchFocus = !!(_prev && _prev.id === "mainSearchInput");
+            const _selStart = _hadSearchFocus ? _prev.selectionStart : null;
+            const _selEnd = _hadSearchFocus ? _prev.selectionEnd : null;
+            if (_hadSearchFocus) window.__restoreSearchFocus = { s: _selStart, e: _selEnd };
+
+            container.innerHTML = `
+                <div class="container">
+                    
+                    <aside class="box">
+                        <h2>Store Menu</h2>
+                        <div class="menu">
+                            <button class="${state.view === 'shop' && state.category === 'All' ? 'active' : ''}" onclick="setView('shop','All')">
+                                🌐 All Products
+                            </button>
+                            ${categoryNames().map(cat => `
+                                <button class="${state.view === 'shop' && state.category === cat ? 'active' : ''}" onclick="setView('shop','${cat}')">
+                                    ${getCategoryIcon(cat)} ${cat}
+                                </button>
+                            `).join("")}
+
+                            <div class="menu-divider"></div>
+
+                            <button class="${state.view === 'cart' ? 'active' : ''}" onclick="setView('cart')">
+                                🛒 Cart (${totals.totalItems})
+                            </button>
+                            <button class="${state.view === 'checkout' ? 'active' : ''}" onclick="setView('checkout')">
+                                💳 Checkout
+                            </button>
+                            <button class="${state.view === 'orders' ? 'active' : ''}" onclick="setView('orders')">
+                                📦 Order History
+                            </button>
+
+                            ${isManager ? `
+                                <div class="menu-divider"></div>
+                                <div class="menu-heading">Manager Controls</div>
+                                <button class="manager-btn ${state.view === 'admin_products' ? 'active' : ''}" onclick="setView('admin_products')">
+                                    ⚙️ Manage Products (DB)
+                                </button>
+                                <button class="manager-btn ${state.view === 'admin_users' ? 'active' : ''}" onclick="setView('admin_users')">
+                                    👥 Manage Users & Passwords
+                                </button>
+                            ` : `
+                                <div class="menu-divider"></div>
+                                <button class="${state.view === 'change_password' ? 'active' : ''}" onclick="setView('change_password')">
+                                    🔐 Change Password (DB)
+                                </button>
+                            `}
+                        </div>
+                    </aside>
+
+                    
+                    <section class="box">
+                        ${mainContentHtml}
+                    </section>
+
+                    
+                    <aside class="box profile-sidebar">
+                        <h2>👤 User Account</h2>
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <strong style="font-size: 15px;">${state.currentUser.full_name}</strong>
+                                <span class="role-pill ${state.currentUser.role}">${state.currentUser.role}</span>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">${state.currentUser.email}</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <button style="width: 100%; padding: 7px; font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="setView('auth')">
+                                    🔄 Switch Account / Login
+                                </button>
+                                ${state.currentUser.role !== 'guest' ? `
+                                    <button style="width: 100%; padding: 7px; font-size: 12px; background: #fee2e2; color: var(--danger); border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="handleLogout()">
+                                        Log Out to Guest
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <h2>⚡ Quick Cart</h2>
+                        <div style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">
+                            Items in Cart: <strong>${totals.totalItems}</strong><br>
+                            Subtotal: <strong style="color: var(--secondary);">$${totals.subtotal}</strong>
+                        </div>
+                        <button class="add-btn-basket" onclick="setView('cart')">
+                            View Full Cart ($${totals.grandTotal})
+                        </button>
+
+                        <div class="menu-divider" style="margin: 18px 0;"></div>
+
+                        <h2>🗄️ Database Info</h2>
+                        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                            Engine: <strong>${isSupabaseConnected ? 'Supabase PostgreSQL' : 'Local Demo Storage'}</strong><br>
+                            Cloud Products: <strong>${state.products.length}</strong><br>
+                            Cloud Users: <strong>${state.usersList.length}</strong><br>
+                            Database Orders: <strong>${state.orders.length}</strong>
+                        </div>
+                        <button style="width: 100%; padding: 8px; font-size: 12px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;" onclick="openSupabaseModal()">
+                            ⚙️ Configure Supabase Keys
+                        </button>
+                    </aside>
+                </div>
+            `;
+        }
+
+
+
+
+
+        function renderAuthPage(container) {
+            const isLogin = state.authTab === "login";
+
+            container.innerHTML = `
+                <div class="auth-container">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 38px; margin-bottom: 8px;">⚡</div>
+                        <h2 style="font-size: 22px; font-weight: 700;">SuperMart Account Portal</h2>
+                        <p style="font-size: 13px; color: var(--text-muted);">Sign in or register with Supabase Database</p>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <button class="auth-tab-btn ${isLogin ? 'active' : ''}" onclick="state.authTab='login'; render();">
+                            Sign In
+                        </button>
+                        <button class="auth-tab-btn ${!isLogin ? 'active' : ''}" onclick="state.authTab='register'; render();">
+                            Create Account
+                        </button>
+                    </div>
+
+                    ${isLogin ? `
+                        <form onsubmit="handleLogin(event)">
+                            <div class="form-group">
+                                <label>Username or Email Address</label>
+                                <input class="form-control" id="authIdentifier" placeholder="e.g. manager@apex.com or alex" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control" type="password" id="authPassword" placeholder="Enter password" required>
+                            </div>
+                            <button type="submit" class="place-order-btn" style="background: var(--primary);">
+                                Sign In
+                            </button>
+                        </form>
+                    ` : `
+                        <form onsubmit="handleRegister(event)">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input class="form-control" id="regFullName" placeholder="e.g. Rishi S" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Username *</label>
+                                <input class="form-control" id="regUsername" placeholder="e.g. rishi123" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address (Optional)</label>
+                                <input class="form-control" type="email" id="regEmail" placeholder="optional@vit.edu">
+                            </div>
+                            <div class="form-group">
+                                <label>Password *</label>
+                                <input class="form-control" type="password" id="regPassword" placeholder="Choose a password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Account Role *</label>
+                                <select class="form-control" id="regRole">
+                                    <option value="customer">Customer (Shop & Manage Password)</option>
+                                    <option value="manager">Store Manager (Admin & Product Management)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="place-order-btn" style="background: var(--accent);">
+                                Register in Database
+                            </button>
+                        </form>
+                    `}
+
+                    
+                    <div class="quick-role-box">
+                        <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                            ⚡ Quick Test Accounts:
+                        </div>
+
+                        <button class="quick-role-btn" onclick="quickLogin('manager')">
+                            <span>⭐ <strong>Store Manager</strong> (Manage products & DB)</span>
+                            <span style="color: var(--manager-purple); font-size: 12px;">Login ➔</span>
+                        </button>
+
+                        <button class="quick-role-btn" onclick="quickLogin('customer')">
+                            <span>👤 <strong>Customer</strong> (alex@vit.edu)</span>
+                            <span style="color: var(--primary); font-size: 12px;">Login ➔</span>
+                        </button>
+
+                        <button class="quick-role-btn" onclick="loginAsGuest()">
+                            <span>🚶 <strong>Continue as Guest</strong> (Shop directly)</span>
+                            <span style="color: var(--text-muted); font-size: 12px;">Enter ➔</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCategoryIcon(cat) {
+            switch (cat) {
+                case "Electronics": return "💻";
+                case "Audio & Wearables": return "🎧";
+                case "Gaming": return "🎮";
+                case "Fashion": return "👟";
+                case "Home & Office": return "⚡";
+                case "Books": return "📚";
+                case "Sports": return "🧘";
+                case "Beauty": return "💄";
+                case "Toys": return "🧸";
+                case "Groceries": return "🍎";
+                default: return "📦";
+            }
+        }
+
+
+
+
+        const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+        async function loadReviews(productId) {
+            if (supabaseClient && isSupabaseConnected) {
+                const { data, error } = await supabaseClient.from("reviews")
+                    .select("review_id, user_id, rating, comment, review_date, users(full_name)")
+                    .eq("product_id", productId).order("review_date", { ascending: false });
+                if (error) { console.warn(error.message); return []; }
+                return data.map(r => ({ id: r.review_id, user_id: r.user_id, name: r.users ? r.users.full_name : "User", rating: r.rating, comment: r.comment, date: r.review_date }));
+            }
+            return JSON.parse(localStorage.getItem("apex_mock_reviews") || "[]").filter(r => r.product_id == productId);
+        }
+
+        async function openReviewsModal(productId) {
+            const prod = state.products.find(p => p.id == productId);
+            const reviews = await loadReviews(productId);
+            const me = state.currentUser;
+            const canReview = me.role !== "guest";
+            const mine = reviews.find(r => r.user_id == me.id || (!me.id && r.name === me.full_name));
+            document.getElementById("modalContainer").innerHTML = `
+                <div class="modal-overlay" onclick="if(event.target === this) closeModals()">
+                    <div class="modal-card" style="max-height:85vh; overflow:auto;">
+                        <button class="modal-close" onclick="closeModals()">✕</button>
+                        <h2 style="margin-bottom:4px;">${prod ? prod.icon : ''} ${prod ? esc(prod.name) : 'Product'} – Reviews</h2>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Average rating: ⭐ ${prod ? prod.rating : '-'} (${reviews.length} review${reviews.length === 1 ? '' : 's'})</p>
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+                            ${reviews.length === 0 ? '<p style="color:var(--text-muted); font-size:13px;">No reviews yet. Be the first!</p>' : reviews.map(r => `
+                                <div style="border:1px solid var(--border); border-radius:8px; padding:8px 12px; background:white;">
+                                    <div style="display:flex; justify-content:space-between; font-size:13px;">
+                                        <strong>${esc(r.name)}</strong><span>${'⭐'.repeat(r.rating)}</span>
+                                    </div>
+                                    <div style="font-size:12.5px; margin-top:2px;">${esc(r.comment) || '<em>No comment</em>'}</div>
+                                    ${(mine && mine.id === r.id) || me.role === 'manager' ? `<button class="delete-btn" style="margin-top:6px;" onclick="deleteReview(${productId}, ${r.id})">Delete</button>` : ''}
+                                </div>`).join("")}
+                        </div>
+                        ${canReview ? `
+                            <form onsubmit="submitReview(event, ${productId})">
+                                <h3 style="font-size:14px; margin-bottom:8px;">${mine ? 'Update your review' : 'Write a review'}</h3>
+                                <div class="form-group"><label>Rating</label>
+                                    <select class="form-control" id="revRating">${[5,4,3,2,1].map(n => `<option value="${n}" ${mine && mine.rating === n ? 'selected' : ''}>${n} ⭐</option>`).join("")}</select></div>
+                                <div class="form-group"><label>Comment</label>
+                                    <input class="form-control" id="revComment" maxlength="300" value="${mine ? esc(mine.comment) : ''}" placeholder="What did you think?"></div>
+                                <button type="submit" class="place-order-btn" style="margin-top:0;">${mine ? 'Update Review' : 'Submit Review'}</button>
+                            </form>` : `<p style="font-size:13px; color:var(--text-muted);">Log in with a customer account to write a review.</p>`}
+                    </div>
+                </div>`;
+        }
+
+        async function submitReview(event, productId) {
+            event.preventDefault();
+            const rating = parseInt(document.getElementById("revRating").value);
+            const comment = document.getElementById("revComment").value.trim();
+            const me = state.currentUser;
+            if (supabaseClient && isSupabaseConnected && me.id) {
+                const { error } = await supabaseClient.from("reviews")
+                    .upsert({ product_id: productId, user_id: me.id, rating, comment }, { onConflict: "product_id,user_id" });
+                if (error) { alert("Review error: " + error.message); return; }
+                await fetchProductsFromSupabase();
+            } else {
+                const all = JSON.parse(localStorage.getItem("apex_mock_reviews") || "[]").filter(r => !(r.product_id == productId && r.name === me.full_name));
+                all.push({ id: Date.now(), product_id: productId, name: me.full_name, rating, comment, date: new Date().toISOString() });
+                localStorage.setItem("apex_mock_reviews", JSON.stringify(all));
+            }
+            showToast("Review saved ⭐");
+            recordDbFlow(`Review on product #${productId} by ${me.username}`,
+                `INSERT INTO reviews (product_id, user_id, rating, comment)\nVALUES (${productId}, ${me.id || '?'}, ${rating}, '${comment}')\nON CONFLICT (product_id, user_id) DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment;`,
+                "Trigger trg_update_rating fires AFTER INSERT/UPDATE on reviews",
+                "INSERT/UPDATE reviews; UPDATE products.rating = AVG(reviews.rating)", "Review stored and product rating recalculated");
+            openReviewsModal(productId);
+        }
+
+        async function deleteReview(productId, reviewId) {
+            if (!confirm("Delete this review?")) return;
+            if (supabaseClient && isSupabaseConnected) {
+                const { error } = await supabaseClient.from("reviews").delete().eq("review_id", reviewId);
+                if (error) { alert("Delete error: " + error.message); return; }
+                await fetchProductsFromSupabase();
+            } else {
+                const all = JSON.parse(localStorage.getItem("apex_mock_reviews") || "[]").filter(r => r.id != reviewId);
+                localStorage.setItem("apex_mock_reviews", JSON.stringify(all));
+            }
+            showToast("Review deleted");
+            recordDbFlow(`Delete review #${reviewId}`, `DELETE FROM reviews WHERE review_id = ${reviewId};`,
+                "Trigger trg_update_rating fires AFTER DELETE", "DELETE 1 row; products.rating recalculated", "Review removed");
+            openReviewsModal(productId);
+        }
+
+
+        function openSupabaseModal() {
+            const container = document.getElementById("modalContainer");
+            container.innerHTML = `
+                <div class="modal-overlay" onclick="if(event.target === this) closeModals()">
+                    <div class="modal-card">
+                        <button class="modal-close" onclick="closeModals()">✕</button>
+                        <h2 style="margin-bottom: 8px;">⚙️ Supabase Database Configuration</h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                            Connect this e-commerce platform to your cloud Supabase PostgreSQL database.
+                        </p>
+
+                        <form onsubmit="saveSupabaseConfig(event)">
+                            <div class="form-group">
+                                <label>Supabase Project URL</label>
+                                <input class="form-control" id="modalSupabaseUrl" placeholder="https:
+                                <small style="font-size: 11px; color: var(--text-muted);">Settings -> API -> Project URL</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Supabase Anon Public API Key</label>
+                                <input class="form-control" type="password" id="modalSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." value="${supabaseConfig.key}" required>
+                                <small style="font-size: 11px; color: var(--text-muted);">Settings -> API -> Project API Keys (anon public)</small>
+                            </div>
+
+                            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; font-size: 12px; color: #1e40af; margin-bottom: 14px;">
+                                <strong>💡 Database Setup:</strong><br>
+                                Execute the updated SQL query from <code>supabase_schema.sql</code> in your Supabase SQL editor to create the 8 tables, functions, procedures and triggers!
+                            </div>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button type="submit" class="place-order-btn" style="margin-top: 0; flex: 1;">
+                                    Save & Connect Database
+                                </button>
+                                <button type="button" class="delete-btn" onclick="clearSupabaseConfig()">
+                                    Disconnect
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveSupabaseConfig(event) {
+            event.preventDefault();
+            const url = document.getElementById("modalSupabaseUrl").value.trim();
+            const key = document.getElementById("modalSupabaseKey").value.trim();
+
+            supabaseConfig.url = url;
+            supabaseConfig.key = key;
+
+            localStorage.setItem("apex_supabase_url", url);
+            localStorage.setItem("apex_supabase_key", key);
+
+            closeModals();
+            initSupabase();
+            showToast("Connecting to Supabase...");
+        }
+
+        function clearSupabaseConfig() {
+            localStorage.removeItem("apex_supabase_url");
+            localStorage.removeItem("apex_supabase_key");
+            supabaseConfig.url = "";
+            supabaseConfig.key = "";
+            supabaseClient = null;
+            isSupabaseConnected = false;
+            state.products = [...DEFAULT_PRODUCTS];
+            closeModals();
+            initSupabase();
+            showToast("Switched back to local Demo mode");
+        }
+
+        function closeModals() {
+            document.getElementById("modalContainer").innerHTML = "";
+        }
+
+        function showToast(message) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = `<span>⚡</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transition = "opacity 0.4s";
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+
+        const dbFlowHistory = [];
+
+        function recordDbFlow(operation, sqlQuery, processing, updateRetrieval, result) {
+            const entry = {
+                timestamp: new Date().toLocaleTimeString(),
+                operation,
+                sqlQuery,
+                processing,
+                updateRetrieval,
+                result
+            };
+            dbFlowHistory.unshift(entry);
+
+            showDbFlowToast(entry);
+        }
+
+        function showDbFlowToast(entry) {
+            let banner = document.getElementById("dbFlowToastBanner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "dbFlowToastBanner";
+                banner.className = "db-flow-toast";
+                document.body.appendChild(banner);
+            }
+
+            banner.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 15px;">📊</span>
+                        <strong style="color: #f8fafc; font-size: 12.5px;">Interactive Database Demonstration Flow</strong>
+                        <span style="font-size: 10px; background: #3b82f6; padding: 2px 6px; border-radius: 4px; color: white; font-weight: 700;">LIVE</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button onclick="openDbFlowModal()" style="background: #334155; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: 600;">Detailed Flow Modal ➔</button>
+                        <button onclick="document.getElementById('dbFlowToastBanner').remove()" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer;">✕</button>
+                    </div>
+                </div>
+
+                <div class="db-flow-steps">
+                    <div class="db-flow-step">
+                        <div class="db-flow-step-title">1. User Operation</div>
+                        <div>${entry.operation}</div>
+                    </div>
+                    <div class="db-flow-step">
+                        <div class="db-flow-step-title">2. SQL / PL/SQL</div>
+                        <div class="db-flow-step-code">${entry.sqlQuery}</div>
+                    </div>
+                    <div class="db-flow-step">
+                        <div class="db-flow-step-title">3. DB Processing</div>
+                        <div>${entry.processing}</div>
+                    </div>
+                    <div class="db-flow-step">
+                        <div class="db-flow-step-title">4. DB Update/Retrieval</div>
+                        <div>${entry.updateRetrieval}</div>
+                    </div>
+                    <div class="db-flow-step">
+                        <div class="db-flow-step-title">5. Result</div>
+                        <div style="color: #4ade80; font-weight: 600;">${entry.result}</div>
+                    </div>
+                </div>
+            `;
+
+            clearTimeout(window._dbFlowTimer);
+            window._dbFlowTimer = setTimeout(() => {
+                const b = document.getElementById("dbFlowToastBanner");
+                if (b) b.remove();
+            }, 8000);
+        }
+
+        function openDbFlowModal() {
+            const container = document.getElementById("modalContainer");
+            const latest = dbFlowHistory[0] || {
+                operation: "Browse Catalog & View Products",
+                sqlQuery: "SELECT * FROM public.products ORDER BY id ASC;",
+                processing: "PostgreSQL sequential scan & primary key index sort",
+                updateRetrieval: "20 rows retrieved from public.products table",
+                result: "Catalog rendered with 20 items in grid"
+            };
+
+            container.innerHTML = `
+                <div class="modal-overlay" onclick="if(event.target === this) closeModals()">
+                    <div class="modal-card" style="max-width: 820px;">
+                        <button class="modal-close" onclick="closeModals()">✕</button>
+                        <h2 style="margin-bottom: 6px;">📊 Interactive Database Demonstration Flow</h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                            Demonstrating the exact 5-step database flow:
+                            <code>User Operation ➔ SQL/PL/SQL ➔ Database Processing ➔ Database Update/Retrieval ➔ Result</code>
+                        </p>
+
+                        <div style="background: #0f172a; color: white; padding: 18px; border-radius: 12px; margin-bottom: 20px;">
+                            <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 12px; text-transform: uppercase;">
+                                Active Transaction Flow:
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="background: #1e293b; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                                    <strong style="color: #60a5fa; font-size: 12px;">1. USER OPERATION:</strong><br>
+                                    <span style="font-size: 13px;">${latest.operation}</span>
+                                </div>
+                                <div style="background: #1e293b; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #a855f7;">
+                                    <strong style="color: #c084fc; font-size: 12px;">2. SQL / PL/SQL EXECUTED:</strong><br>
+                                    <pre style="color: #86efac; font-family: Consolas, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 4px; line-height: 1.4;">${latest.sqlQuery}</pre>
+                                </div>
+                                <div style="background: #1e293b; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #eab308;">
+                                    <strong style="color: #fde047; font-size: 12px;">3. DATABASE PROCESSING:</strong><br>
+                                    <span style="font-size: 13px;">${latest.processing}</span>
+                                </div>
+                                <div style="background: #1e293b; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #ec4899;">
+                                    <strong style="color: #f472b6; font-size: 12px;">4. DATABASE UPDATE / RETRIEVAL:</strong><br>
+                                    <span style="font-size: 13px;">${latest.updateRetrieval}</span>
+                                </div>
+                                <div style="background: #1e293b; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #22c55e;">
+                                    <strong style="color: #4ade80; font-size: 12px;">5. RESULT:</strong><br>
+                                    <span style="font-size: 13px;">${latest.result}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; font-size: 12px; color: #1e40af; margin-bottom: 16px;">
+                            <strong>⚡ PL/pgSQL Trigger & Stored Procedure Highlight:</strong><br>
+                            When an order is inserted into the <code>orders</code> table, the PostgreSQL trigger <code>trg_reduce_stock_after_order</code> executes the PL/pgSQL function <code>process_order_stock_reduction()</code> to automatically decrement inventory stock in the <code>products</code> table!
+                        </div>
+
+                        <button class="place-order-btn" onclick="closeModals()">
+                            Close Demonstration Flow
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initSupabase();
+            render();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+##F0 seed data after fix
+ order_code |  status   |      method       | pay_status | total_amount 
+------------+-----------+-------------------+------------+--------------
+ ORD-100001 | Delivered | UPI               | Paid       |       470.40
+ ORD-100002 | Delivered | Cash on Delivery  | Paid       |      1048.95
+ ORD-100003 | Shipped   | Credit/Debit Card | Paid       |       523.95
+ ORD-100004 | Confirmed | UPI               | Paid       |       522.90
+ ORD-100005 | Delivered | Cash on Delivery  | Paid       |       189.00
+ ORD-100006 | Confirmed | Credit/Debit Card | Paid       |       248.85
+ ORD-100007 | Shipped   | UPI               | Paid       |      1258.95
+ ORD-100008 | Delivered | Cash on Delivery  | Paid       |        88.50
+ ORD-100009 | Confirmed | Credit/Debit Card | Paid       |       150.45
+ ORD-100010 | Confirmed | UPI               | Paid       |       259.35
+(10 rows)
+
+ product_id |        name         
+------------+---------------------
+          1 | Apple iPhone 15 Pro
+          2 | MacBook Air M2
+          3 | Samsung 4K Smart TV
+          4 | iPad Air 11-inch
+(4 rows)
+
+##F1 anon registers with role manager
+SET
+ username |   role   
+----------+----------
+ intruder | customer
+(1 row)
+
+##F2 anon updates an order total directly
+ERROR:  permission denied for table orders
+##F3 anon resets the manager password
+ERROR:  permission denied for function fn_admin_reset_password
+##F4 anon changes order status / restocks through the API wrappers
+ERROR:  permission denied for function fn_run_update_order_status
+ERROR:  permission denied for function fn_run_restock
+##F5 anon updates a product price directly
+ERROR:  permission denied for table products
+##F6 anon still reads users without hashes
+ username |   role   
+----------+----------
+ alex     | customer
+(1 row)
+
+ERROR:  permission denied for table users
+##F7 anon checkout with a forged 99% discount
+ERROR:  Invalid discount rate 0.99
+##F8 anon checkout with an unknown product
+ERROR:  Unknown product 99999
+##F9 anon checkout for a non-existent customer id
+ERROR:  Unknown customer 424242
+##F10 anon valid checkout with VIT20 still works
+ORD-276542 81.36
+##F11 anon login and new hash cost
+ username |   role   
+----------+----------
+ alex     | customer
+(1 row)
+
+RESET
+ hash_prefix 
+-------------
+ $2a$10$
+(1 row)
+
+ orders_total 
+--------------
+           11
+(1 row)
+
+##F12 status transitions (run by the owner, as from the SQL editor)
+ERROR:  Invalid status change Confirmed -> Delivered
+CALL
+CALL
+ERROR:  Invalid status change Delivered -> Cancelled
+  status   | pay_status 
+-----------+------------
+ Delivered | Paid
+(1 row)
+
+##F13 cancelling an unpaid COD order
+  status   |      method      | pay_status 
+-----------+------------------+------------
+ Confirmed | Cash on Delivery | Pending
+(1 row)
+
+CALL
+  status   |      method      | pay_status 
+-----------+------------------+------------
+ Cancelled | Cash on Delivery | Cancelled
+(1 row)
+
+##F14 cancelled order cannot be re-confirmed
+ERROR:  Invalid status change Cancelled -> Confirmed
+##F15 regression: stock check and atomic rollback still work
+ orders | tv_stock 
+--------+----------
+     12 |        8
+(1 row)
+
+ERROR:  Insufficient stock for "Samsung 4K Smart TV" (available 8, requested 50)
+ orders | tv_stock 
+--------+----------
+     12 |        8
+(1 row)
+

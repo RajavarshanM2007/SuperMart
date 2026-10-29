@@ -1,0 +1,14 @@
+# Word documents
+*.docx
+*.doc
+~$*
+
+# Reports, slides and course documents (contain personal details: name, reg. no., faculty)
+*.pdf
+*.pptx
+
+# Secrets / local env
+.env
+.env.*
+*.key
+*.pem

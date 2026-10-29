@@ -1,0 +1,84 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#fff}
+svg{display:block;font-family:"Segoe UI",Arial,sans-serif}
+.box{fill:#f4f8fc;stroke:#2f5d8a;stroke-width:1.8}
+.inner{fill:#fff;stroke:#7a9cbf;stroke-width:1.2}
+.t{font-size:17px;font-weight:700;fill:#13324f}
+.s{font-size:13px;fill:#222}
+.m{font-size:12.5px;fill:#222;font-family:Consolas,monospace}
+.arr{stroke:#333;stroke-width:1.8;fill:none;marker-end:url(#a)}
+.dash{stroke-dasharray:6 4}
+.lab{font-size:12.5px;fill:#333}
+</style></head><body>
+<svg width="1100" height="560" viewBox="0 0 1100 560" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#333"/></marker></defs>
+
+<!-- client tier -->
+<rect class="box" x="20" y="20" width="330" height="520" rx="10"/>
+<text class="t" x="40" y="50">Presentation tier (browser)</text>
+<rect class="inner" x="40" y="70" width="290" height="130" rx="6"/>
+<text class="s" x="55" y="95" font-weight="600">index.html (HTML, CSS, vanilla JS)</text>
+<text class="s" x="55" y="118">Catalogue, cart, checkout, order history,</text>
+<text class="s" x="55" y="138">reviews, account portal, manager panels,</text>
+<text class="s" x="55" y="158">"Interactive DB Flow" log panel</text>
+<text class="s" x="55" y="182">Role checks are done in the browser</text>
+<rect class="inner" x="40" y="220" width="290" height="80" rx="6"/>
+<text class="s" x="55" y="245" font-weight="600">supabase-js v2 client (CDN)</text>
+<text class="m" x="55" y="268">.from(table).select/insert/delete</text>
+<text class="m" x="55" y="288">.rpc('fn_...', params)</text>
+<rect class="inner" x="40" y="320" width="290" height="95" rx="6"/>
+<text class="s" x="55" y="345" font-weight="600">localStorage</text>
+<text class="s" x="55" y="367">Supabase URL + anon key, session, cart;</text>
+<text class="s" x="55" y="387">mock users/orders used only in the</text>
+<text class="s" x="55" y="405">offline demo mode (no DB connection)</text>
+<rect class="inner" x="40" y="435" width="290" height="85" rx="6" style="stroke-dasharray:5 4"/>
+<text class="s" x="55" y="460" font-weight="600">Optional: Google Gemini API</text>
+<text class="s" x="55" y="482">natural-language product search;</text>
+<text class="s" x="55" y="502">not part of the database design</text>
+
+<!-- api tier -->
+<rect class="box" x="420" y="160" width="235" height="210" rx="10"/>
+<text class="t" x="435" y="190">Supabase API layer</text>
+<text class="s" x="435" y="218">PostgREST over HTTPS</text>
+<text class="s" x="435" y="242">Requests run as the</text>
+<text class="s" x="435" y="262">database role <tspan font-family="Consolas" font-weight="700">anon</tspan></text>
+<text class="s" x="435" y="290">GRANTs + RLS policies</text>
+<text class="s" x="435" y="310">decide what is allowed</text>
+<text class="s" x="435" y="338">(policies are currently</text>
+<text class="s" x="435" y="356">USING (true) on all tables)</text>
+
+<!-- db tier -->
+<rect class="box" x="700" y="20" width="380" height="520" rx="10"/>
+<text class="t" x="720" y="50">Data tier: PostgreSQL (Supabase)</text>
+<rect class="inner" x="720" y="70" width="340" height="105" rx="6"/>
+<text class="s" x="735" y="95" font-weight="600">8 tables (schema public)</text>
+<text class="s" x="735" y="118">categories, products, users, addresses,</text>
+<text class="s" x="735" y="138">orders, order_items, payments, reviews</text>
+<text class="s" x="735" y="160">PK/FK, UNIQUE, CHECK, DEFAULT, 3 indexes</text>
+<rect class="inner" x="720" y="190" width="340" height="140" rx="6"/>
+<text class="s" x="735" y="215" font-weight="600">PL/pgSQL business logic</text>
+<text class="s" x="735" y="238">8 functions (fn_place_order, fn_login, ...)</text>
+<text class="s" x="735" y="260">3 procedures (1 with cursor cur_low)</text>
+<text class="s" x="735" y="282">5 row-level triggers (stock, payment,</text>
+<text class="s" x="735" y="302">rating)</text>
+<rect class="inner" x="720" y="345" width="340" height="80" rx="6"/>
+<text class="s" x="735" y="370" font-weight="600">pgcrypto extension</text>
+<text class="s" x="735" y="393">crypt() + gen_salt('bf') for bcrypt</text>
+<text class="s" x="735" y="413">password hashes</text>
+<rect class="inner" x="720" y="440" width="340" height="80" rx="6"/>
+<text class="s" x="735" y="465" font-weight="600">Supabase SQL editor / psql</text>
+<text class="s" x="735" y="488">used by the developer to run DDL,</text>
+<text class="s" x="735" y="508">reports and CALL statements directly</text>
+
+<!-- arrows -->
+<path class="arr" d="M330,260 L418,260"/>
+<text class="lab" x="338" y="250" style="font-size:11px">REST/RPC</text>
+<path class="arr" d="M655,240 L718,140"/>
+<path class="arr" d="M655,280 L718,260"/>
+<text class="lab" x="672" y="232">SQL</text>
+<path class="arr" d="M418,300 L332,300"/>
+<text class="lab" x="338" y="320" style="font-size:11px">JSON rows</text>
+<path class="arr dash" d="M185,435 L185,418"/>
+</svg>
+</body></html>

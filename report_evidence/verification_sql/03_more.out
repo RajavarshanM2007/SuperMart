@@ -1,0 +1,88 @@
+##L2 no transition rules
+  status   | quantity |     name     | stock 
+-----------+----------+--------------+-------
+ Delivered |        2 | Yoga Mat Pro |    37
+(1 row)
+
+CALL
+  status   | stock | pay_status 
+-----------+-------+------------
+ Cancelled |    39 | Refunded
+(1 row)
+
+CALL
+  status   | stock | pay_status 
+-----------+-------+------------
+ Confirmed |    39 | Refunded
+(1 row)
+
+##L3 COD cancelled stays pending
+CALL
+  status   |      method      | pay_status 
+-----------+------------------+------------
+ Cancelled | Cash on Delivery | Pending
+(1 row)
+
+##DCL grant revoke
+CREATE ROLE
+GRANT
+GRANT
+SET
+ visible_products 
+------------------
+               46
+(1 row)
+
+psql:/tmp/m.sql:20: ERROR:  permission denied for table products
+psql:/tmp/m.sql:21: ERROR:  permission denied for table orders
+RESET
+REVOKE
+SET
+psql:/tmp/m.sql:25: ERROR:  permission denied for table products
+RESET
+##SEC anon column grant
+SET
+ username |   role   
+----------+----------
+ alex     | customer
+(1 row)
+
+psql:/tmp/m.sql:31: ERROR:  permission denied for table users
+##SEC anon can register manager
+ username |  role   
+----------+---------
+ intruder | manager
+(1 row)
+
+##SEC anon can rewrite order totals (RLS policy USING true)
+ order_code | total_amount 
+------------+--------------
+ ORD-100002 |         1.00
+(1 row)
+
+UPDATE 1
+##SEC anon can reset any password
+ fn_admin_reset_password 
+-------------------------
+ 
+(1 row)
+
+RESET
+ username 
+----------
+ manager
+(1 row)
+
+##SEC policies
+  tablename  | policyname | cmd | qual | with_check 
+-------------+------------+-----+------+------------
+ addresses   | app_all    | ALL | true | true
+ categories  | app_all    | ALL | true | true
+ order_items | app_all    | ALL | true | true
+ orders      | app_all    | ALL | true | true
+ payments    | app_all    | ALL | true | true
+ products    | app_all    | ALL | true | true
+ reviews     | app_all    | ALL | true | true
+ users       | app_all    | ALL | true | true
+(8 rows)
+

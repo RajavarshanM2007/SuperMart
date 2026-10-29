@@ -1,0 +1,14 @@
+##O1 original: anon checkout with a forged 99% discount (MacBook Air M2, price 1199)
+SET
+ order_code | discount | total_amount 
+------------+----------+--------------
+ ORD-596347 |  1187.01 |        12.59
+(1 row)
+
+##O2 original: anon checkout in the name of customer priya
+priya phone before: 9000000003
+ username | order_code | phone_after 
+----------+------------+-------------
+ priya    | ORD-110043 | 9999999999
+(1 row)
+

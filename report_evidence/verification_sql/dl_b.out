@@ -1,0 +1,9 @@
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+UPDATE 1
+COMMIT

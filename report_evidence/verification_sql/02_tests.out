@@ -1,0 +1,260 @@
+##TX1 guest checkout
+         name          | stock 
+-----------------------+-------
+ PlayStation 5 Console |     8
+ Yoga Mat Pro          |    38
+(2 rows)
+
+ order_code | guest_user | role  |  status   | discount | total_amount 
+------------+------------+-------+-----------+----------+--------------
+ ORD-187433 | t          | guest | Confirmed |     0.00 |       597.45
+(1 row)
+
+         name          | quantity | unit_price 
+-----------------------+----------+------------
+ PlayStation 5 Console |        1 |     499.00
+ Yoga Mat Pro          |        2 |      35.00
+(2 rows)
+
+ method | amount | status | paid_at_set 
+--------+--------+--------+-------------
+ UPI    | 597.45 | Paid   | t
+(1 row)
+
+         name          | stock 
+-----------------------+-------
+ PlayStation 5 Console |     7
+ Yoga Mat Pro          |    36
+(2 rows)
+
+##TX2 customer checkout VIT20 COD
+ order_code | discount | total_amount |      method      | status  | paid_at_null 
+------------+----------+--------------+------------------+---------+--------------
+ ORD-432929 |    15.80 |        81.36 | Cash on Delivery | Pending | t
+(1 row)
+
+##TX3 insufficient stock -> whole call rolled back
+ orders | addresses | users | tv_stock | mat_stock 
+--------+-----------+-------+----------+-----------
+     12 |        12 |    11 |        8 |        36
+(1 row)
+
+psql:/tmp/t.sql:26: ERROR:  Insufficient stock for "Samsung 4K Smart TV" (available 8, requested 50)
+CONTEXT:  PL/pgSQL function trg_fn_check_stock() line 6 at RAISE
+SQL statement "INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+        SELECT v_order_id, p.product_id, (it->>'quantity')::INT, p.price
+        FROM   products p WHERE p.product_id = (it->>'product_id')::BIGINT"
+PL/pgSQL function fn_place_order(bigint,text,text,text,text,text,text,text,numeric,jsonb) line 30 at SQL statement
+ orders | addresses | users | tv_stock | mat_stock 
+--------+-----------+-------+----------+-----------
+     12 |        12 |    11 |        8 |        36
+(1 row)
+
+##TX4 deliver COD order
+CALL
+  status   | pay_status | paid_at_set 
+-----------+------------+-------------
+ Delivered | Paid       | t
+(1 row)
+
+##TX5 cancel paid order
+CALL
+  status   | pay_status 
+-----------+------------
+ Cancelled | Refunded
+(1 row)
+
+         name          | stock 
+-----------------------+-------
+ PlayStation 5 Console |     8
+ Yoga Mat Pro          |    38
+(2 rows)
+
+##TX5b unknown order
+psql:/tmp/t.sql:42: ERROR:  Order 99999 does not exist
+CONTEXT:  PL/pgSQL function sp_update_order_status(bigint,text) line 4 at RAISE
+##TX6 review trigger
+      name       | rating 
+-----------------+--------
+ Sony WH-1000XM5 |    5.0
+(1 row)
+
+INSERT 0 1
+      name       | rating 
+-----------------+--------
+ Sony WH-1000XM5 |    4.0
+(1 row)
+
+DELETE 2
+      name       | rating 
+-----------------+--------
+ Sony WH-1000XM5 |    4.5
+(1 row)
+
+##TX7 restock cursor
+           name            | stock 
+---------------------------+-------
+ Dyson V12 Cordless Vacuum |     7
+ PlayStation 5 Console     |     8
+ Samsung 4K Smart TV       |     8
+ MacBook Air M2            |     9
+(4 rows)
+
+psql:/tmp/t.sql:54: NOTICE:  Restocked Dyson V12 Cordless Vacuum (was 7, now 27)
+psql:/tmp/t.sql:54: NOTICE:  Restocked Samsung 4K Smart TV (was 8, now 28)
+psql:/tmp/t.sql:54: NOTICE:  Restocked PlayStation 5 Console (was 8, now 28)
+psql:/tmp/t.sql:54: NOTICE:  Restocked MacBook Air M2 (was 9, now 29)
+psql:/tmp/t.sql:54: NOTICE:  Total products restocked: 4
+CALL
+           name            | stock 
+---------------------------+-------
+ Dyson V12 Cordless Vacuum |    27
+ MacBook Air M2            |    29
+ PlayStation 5 Console     |    28
+ Samsung 4K Smart TV       |    28
+(4 rows)
+
+##TX8 category discount
+             name             | price  
+------------------------------+--------
+ Elgato Stream Deck MK.2      | 149.00
+ Keychron Mechanical Keyboard | 110.00
+ Logitech MX Master 3S        |  99.00
+ PlayStation 5 Console        | 499.00
+(4 rows)
+
+CALL
+             name             | price  
+------------------------------+--------
+ Elgato Stream Deck MK.2      | 134.10
+ Keychron Mechanical Keyboard |  99.00
+ Logitech MX Master 3S        |  89.10
+ PlayStation 5 Console        | 449.10
+(4 rows)
+
+##TX9 auth
+ user_id | username |   role   
+---------+----------+----------
+      13 | nisha    | customer
+(1 row)
+
+ hash_prefix | hash_len 
+-------------+----------
+ $2a$06$     |       60
+(1 row)
+
+ username |   role   
+----------+----------
+ nisha    | customer
+(1 row)
+
+ rows_returned 
+---------------
+             0
+(1 row)
+
+ changed_with_wrong_old 
+------------------------
+ f
+(1 row)
+
+ changed_with_right_old 
+------------------------
+ t
+(1 row)
+
+ username 
+----------
+ nisha
+(1 row)
+
+ guest_logins 
+--------------
+            0
+(1 row)
+
+##C1 pincode
+psql:/tmp/t.sql:73: ERROR:  new row for relation "addresses" violates check constraint "addresses_pincode_check"
+DETAIL:  Failing row contains (14, 3, 1 Test Street, Mysuru, Karnataka, 5700, f).
+##C2 duplicate review
+psql:/tmp/t.sql:76: ERROR:  duplicate key value violates unique constraint "uq_one_review_per_user"
+DETAIL:  Key (product_id, user_id)=(4, 3) already exists.
+psql:/tmp/t.sql:78: ERROR:  update or delete on table "products" violates foreign key constraint "order_items_product_id_fkey" on table "order_items"
+DETAIL:  Key (product_id)=(4) is still referenced from table "order_items".
+##C3 FK restrict
+##C4 price check
+psql:/tmp/t.sql:80: ERROR:  new row for relation "products" violates check constraint "products_price_check"
+DETAIL:  Failing row contains (21, Yoga Mat Pro, 7, 0.00, 38, 4.0, 🧘, Non-slip 6mm yoga mat., 2026-10-28 15:52:01.353508+00).
+psql:/tmp/t.sql:82: ERROR:  new row for relation "orders" violates check constraint "orders_status_check"
+DETAIL:  Failing row contains (1, ORD-100001, 2, 2, 2026-10-28 15:52:01.404429+00, Lost, 0.00, 470.40).
+psql:/tmp/t.sql:84: ERROR:  new row for relation "reviews" violates check constraint "reviews_rating_check"
+DETAIL:  Failing row contains (14, 21, 2, 6, null, 2026-10-28 15:53:33.528323+00).
+psql:/tmp/t.sql:86: ERROR:  new row for relation "users" violates check constraint "chk_username_len"
+DETAIL:  Failing row contains (14, ab, null, $2a$06$gBcRUMzPg/k1SBbw.2H0O.u9zmfPLgu1n3ga6ttXLUvXUR96tsB6O, Too Short, null, customer, 2026-10-28 15:53:33.529626+00).
+CONTEXT:  SQL statement "WITH ins AS (
+        INSERT INTO users (username, email, password_hash, full_name, role)
+        VALUES (lower(p_username), NULLIF(lower(p_email),''), crypt(p_password, gen_salt('bf')),
+                COALESCE(NULLIF(p_full_name,''), p_username), p_role)
+        RETURNING users.user_id AS r_id, users.username AS r_un, users.email AS r_em,
+                  users.full_name AS r_fn, users.phone AS r_ph, users.role AS r_ro
+    )
+    SELECT r_id, r_un, r_em, r_fn, r_ph, r_ro FROM ins"
+PL/pgSQL function fn_register_user(text,text,text,text,text) line 3 at RETURN QUERY
+psql:/tmp/t.sql:88: ERROR:  insert or update on table "order_items" violates foreign key constraint "order_items_order_id_fkey"
+DETAIL:  Key (order_id)=(99999) is not present in table "orders".
+psql:/tmp/t.sql:90: ERROR:  new row for relation "products" violates check constraint "products_stock_check"
+DETAIL:  Failing row contains (21, Yoga Mat Pro, 7, 35.00, -962, 4.0, 🧘, Non-slip 6mm yoga mat., 2026-10-28 15:52:01.353508+00).
+##C5 status check
+##C6 rating range
+##C7 username length
+##C8 FK orphan
+##C9 stock cannot go negative directly
+##SP savepoint
+BEGIN
+UPDATE 1
+SAVEPOINT
+UPDATE 1
+      name      | price | stock 
+----------------+-------+-------
+ Honey Jar 500g | 19.50 |    43
+(1 row)
+
+ROLLBACK
+COMMIT
+      name      | price | stock 
+----------------+-------+-------
+ Honey Jar 500g |  9.75 |    43
+(1 row)
+
+##L1 unknown product id silently skipped
+ lines_saved 
+-------------
+           1
+(1 row)
+
+##L2 no transition rules
+psql:/tmp/t.sql:110: ERROR:  cannot use subquery in CALL argument
+LINE 1: CALL sp_update_order_status((SELECT order_id FROM orders WHE...
+                                    ^
+psql:/tmp/t.sql:111: ERROR:  cannot use subquery in CALL argument
+LINE 1: CALL sp_update_order_status((SELECT order_id FROM orders WHE...
+                                    ^
+psql:/tmp/t.sql:115: ERROR:  cannot use subquery in CALL argument
+LINE 1: CALL sp_update_order_status((SELECT order_id FROM orders WHE...
+                                    ^
+ mat_stock_before 
+------------------
+               37
+(1 row)
+
+  status   | mat_stock_after 
+-----------+-----------------
+ Confirmed |              37
+(1 row)
+
+##L3 COD cancelled stays pending
+  status   |      method      | pay_status 
+-----------+------------------+------------
+ Confirmed | Cash on Delivery | Pending
+(1 row)
+

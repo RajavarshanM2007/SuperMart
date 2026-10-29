@@ -1,0 +1,16 @@
+ b_start  
+----------
+ 15:54:14
+(1 row)
+
+ERROR:  Insufficient stock for "Samsung 4K Smart TV" (available 0, requested 1)
+CONTEXT:  PL/pgSQL function trg_fn_check_stock() line 6 at RAISE
+SQL statement "INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+        SELECT v_order_id, p.product_id, (it->>'quantity')::INT, p.price
+        FROM   products p WHERE p.product_id = (it->>'product_id')::BIGINT"
+PL/pgSQL function fn_place_order(bigint,text,text,text,text,text,text,text,numeric,jsonb) line 30 at SQL statement
+ b_finished 
+------------
+ 15:54:16
+(1 row)
+

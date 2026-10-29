@@ -1,0 +1,13 @@
+BEGIN
+UPDATE 1
+ pg_sleep 
+----------
+ 
+(1 row)
+
+ERROR:  deadlock detected
+DETAIL:  Process 304 waits for ShareLock on transaction 1239; blocked by process 311.
+Process 311 waits for ShareLock on transaction 1238; blocked by process 304.
+HINT:  See server log for query details.
+CONTEXT:  while updating tuple (0,25) in relation "products"
+ROLLBACK

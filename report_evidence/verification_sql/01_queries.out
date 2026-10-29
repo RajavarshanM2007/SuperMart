@@ -1,0 +1,271 @@
+##Q1
+ table_name  | row_count 
+-------------+-----------
+ categories  |        10
+ products    |        46
+ users       |        10
+ addresses   |        10
+ orders      |        10
+ order_items |        12
+ payments    |        10
+ reviews     |        11
+(8 rows)
+
+##Q2
+     category      | products 
+-------------------+----------
+ Groceries         |       25
+ Audio & Wearables |        4
+ Electronics       |        4
+ Fashion           |        4
+ Gaming            |        4
+ Home & Office     |        3
+ Books             |        1
+ Sports            |        1
+ Beauty            |        0
+ Toys              |        0
+(10 rows)
+
+##Q3
+       product       |  category   |  price  
+---------------------+-------------+---------
+ MacBook Air M2      | Electronics | 1199.00
+ Apple iPhone 15 Pro | Electronics |  999.00
+ Samsung 4K Smart TV | Electronics |  649.00
+ iPad Air 11-inch    | Electronics |  599.00
+(4 rows)
+
+##Q4
+ order_code |   customer   |    city    |  status   |      method       | pay_status | total_amount 
+------------+--------------+------------+-----------+-------------------+------------+--------------
+ ORD-100001 | Alex Kumar   | Vellore    | Delivered | UPI               | Paid       |       470.40
+ ORD-100010 | Alex Kumar   | Vellore    | Confirmed | Cash on Delivery  | Pending    |       259.35
+ ORD-100002 | Priya Sharma | Chennai    | Delivered | Credit/Debit Card | Paid       |      1048.95
+ ORD-100003 | Rahul Verma  | Hyderabad  | Shipped   | UPI               | Paid       |       523.95
+ ORD-100004 | Sneha Reddy  | Vijayawada | Confirmed | Cash on Delivery  | Pending    |       522.90
+ ORD-100005 | Arjun Nair   | Kochi      | Delivered | Credit/Debit Card | Paid       |       189.00
+ ORD-100006 | Divya Menon  | Bengaluru  | Confirmed | UPI               | Pending    |       248.85
+ ORD-100007 | Karan Singh  | New Delhi  | Shipped   | Cash on Delivery  | Paid       |      1258.95
+ ORD-100008 | Meera Iyer   | Kolkata    | Delivered | Credit/Debit Card | Paid       |        73.50
+ ORD-100009 | Rohan Das    | Pune       | Confirmed | UPI               | Pending    |       135.45
+(10 rows)
+
+##Q5
+     category      | units_sold | revenue 
+-------------------+------------+---------
+ Electronics       |          2 | 2198.00
+ Audio & Wearables |          4 |  976.00
+ Gaming            |          2 |  598.00
+ Home & Office     |          3 |  247.00
+ Books             |          3 |  237.00
+ Fashion           |          1 |  180.00
+ Sports            |          2 |   70.00
+(7 rows)
+
+##Q6
+  customer  | orders_placed | total_spent 
+------------+---------------+-------------
+ Alex Kumar |             2 |      729.75
+(1 row)
+
+##Q7
+           name            | stock 
+---------------------------+-------
+ Dyson V12 Cordless Vacuum |     7
+ PlayStation 5 Console     |     8
+ Samsung 4K Smart TV       |     8
+ MacBook Air M2            |     9
+(4 rows)
+
+##Q8
+            product            | reviews | avg_rating | stored_rating 
+-------------------------------+---------+------------+---------------
+ Apple iPhone 15 Pro           |       1 |        5.0 |           5.0
+ Logitech MX Master 3S         |       1 |        5.0 |           5.0
+ MacBook Air M2                |       1 |        5.0 |           5.0
+ Nike Air Jordan 1 Retro       |       1 |        5.0 |           5.0
+ PlayStation 5 Console         |       1 |        5.0 |           5.0
+ Sony WH-1000XM5               |       1 |        5.0 |           5.0
+ AirPods Pro Gen 2             |       1 |        4.0 |           4.0
+ Database System Concepts      |       1 |        4.0 |           4.0
+ JBL Flip 6 Speaker            |       1 |        4.0 |           4.0
+ Nespresso Vertuo Coffee Maker |       1 |        4.0 |           4.0
+ Yoga Mat Pro                  |       1 |        4.0 |           4.0
+(11 rows)
+
+##Q9
+ category 
+----------
+ Beauty
+ Toys
+(2 rows)
+
+##Q10
+           name            |  price  
+---------------------------+---------
+ MacBook Air M2            | 1199.00
+ Apple iPhone 15 Pro       |  999.00
+ Samsung 4K Smart TV       |  649.00
+ iPad Air 11-inch          |  599.00
+ PlayStation 5 Console     |  499.00
+ Dyson V12 Cordless Vacuum |  499.00
+ Apple Watch Series 9      |  399.00
+ Sony WH-1000XM5           |  349.00
+ AirPods Pro Gen 2         |  249.00
+ Classic Chronograph Watch |  195.00
+ Nike Air Jordan 1 Retro   |  180.00
+(11 rows)
+
+##Q11
+ order_code | items | total_amount 
+------------+-------+--------------
+ ORD-100007 |     1 |      1258.95
+ ORD-100002 |     1 |      1048.95
+ ORD-100003 |     1 |       523.95
+ ORD-100004 |     2 |       522.90
+ ORD-100001 |     2 |       470.40
+(5 rows)
+
+##Q12
+ product_id |             name             | price  
+------------+------------------------------+--------
+          2 | Samsung 4K Smart TV          | 649.00
+          1 | iPad Air 11-inch             | 599.00
+         19 | Dyson V12 Cordless Vacuum    | 499.00
+          7 | Apple Watch Series 9         | 399.00
+         13 | Classic Chronograph Watch    | 195.00
+          9 | Elgato Stream Deck MK.2      | 149.00
+         14 | Minimalist Leather Backpack  | 125.00
+         10 | Keychron Mechanical Keyboard | 110.00
+(8 rows)
+
+##Q13
+  status   | orders |  value  
+-----------+--------+---------
+ Confirmed |      4 | 1166.55
+ Delivered |      4 | 1781.85
+ Shipped   |      2 | 1782.90
+(3 rows)
+
+##Q14
+   customer   |  spent  | rank 
+--------------+---------+------
+ Karan Singh  | 1258.95 |    1
+ Priya Sharma | 1048.95 |    2
+ Alex Kumar   |  729.75 |    3
+ Rahul Verma  |  523.95 |    4
+ Sneha Reddy  |  522.90 |    5
+ Divya Menon  |  248.85 |    6
+ Arjun Nair   |  189.00 |    7
+ Rohan Das    |  135.45 |    8
+ Meera Iyer   |   73.50 |    9
+(9 rows)
+
+##Q15
+ product_id |             name             
+------------+------------------------------
+          1 | iPad Air 11-inch
+          2 | Samsung 4K Smart TV
+          7 | Apple Watch Series 9
+          9 | Elgato Stream Deck MK.2
+         10 | Keychron Mechanical Keyboard
+         13 | Classic Chronograph Watch
+         14 | Minimalist Leather Backpack
+         15 | Vintage Denim Jacket
+         19 | Dyson V12 Cordless Vacuum
+(9 rows)
+
+##Q16
+ order_code | discount | total_amount | items_minus_discount | with_tax 
+------------+----------+--------------+----------------------+----------
+ ORD-100001 |     0.00 |       470.40 |               448.00 |   470.40
+ ORD-100010 |     0.00 |       259.35 |               247.00 |   259.35
+(2 rows)
+
+##Q17
+ username 
+----------
+ alex
+ arjun
+ divya
+ karan
+ meera
+ priya
+ rahul
+ rohan
+ sneha
+(9 rows)
+
+##Q18
+   customer    | same_city_customer |   city    
+---------------+--------------------+-----------
+ Store Manager | Divya Menon        | Bengaluru
+(1 row)
+
+##Q19
+  tag  | email_len | domain  |   joined   
+-------+-----------+---------+------------
+ Alex  |        12 | vit.edu | 2026-10-28
+ Priya |        13 | vit.edu | 2026-10-28
+ Rahul |        13 | vit.edu | 2026-10-28
+ Sneha |        13 | vit.edu | 2026-10-28
+(4 rows)
+
+##Q20
+ products | cheapest | dearest | avg_price | units_in_stock 
+----------+----------+---------+-----------+----------------
+       46 |     3.49 | 1199.00 |    153.46 |           1608
+(1 row)
+
+##Q21
+ category |         product          
+----------+--------------------------
+ Beauty   | 
+ Books    | Database System Concepts
+ Toys     | 
+(3 rows)
+
+##Q22
+      method       | status  
+-------------------+---------
+ Cash on Delivery  | Paid
+ Cash on Delivery  | Pending
+ Credit/Debit Card | Paid
+ Credit/Debit Card | Pending
+ UPI               | Paid
+ UPI               | Pending
+(6 rows)
+
+##Q23
+           name            | price  
+---------------------------+--------
+ AirPods Pro Gen 2         | 249.00
+ Database System Concepts  |  79.00
+ Smart Ergonomic Desk Lamp |  59.00
+ Yoga Mat Pro              |  35.00
+(4 rows)
+
+##Q24
+           name            |  price  |     category      
+---------------------------+---------+-------------------
+ MacBook Air M2            | 1199.00 | Electronics
+ PlayStation 5 Console     |  499.00 | Gaming
+ Dyson V12 Cordless Vacuum |  499.00 | Home & Office
+ Apple Watch Series 9      |  399.00 | Audio & Wearables
+ Classic Chronograph Watch |  195.00 | Fashion
+ Database System Concepts  |   79.00 | Books
+(6 rows)
+
+##Q25
+     state      
+----------------
+ Andhra Pradesh
+ Delhi
+ Karnataka
+ Kerala
+ Maharashtra
+ Tamil Nadu
+ Telangana
+ West Bengal
+(8 rows)
+

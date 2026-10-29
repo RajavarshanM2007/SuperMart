@@ -1,0 +1,17 @@
+BEGIN
+ a_start  | order_code 
+----------+------------
+ 15:54:12 | ORD-561874
+(1 row)
+
+ pg_sleep 
+----------
+ 
+(1 row)
+
+COMMIT
+ a_committed 
+-------------
+ 15:54:16
+(1 row)
+

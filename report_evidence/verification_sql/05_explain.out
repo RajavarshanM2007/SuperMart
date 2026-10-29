@@ -1,0 +1,89 @@
+ count 
+-------
+   100
+(1 row)
+
+ count 
+-------
+  8697
+(1 row)
+
+##E1 with idx_orders_user
+                                       QUERY PLAN                                       
+----------------------------------------------------------------------------------------
+ Bitmap Heap Scan on orders (actual time=0.039..0.429 rows=100 loops=1)
+   Recheck Cond: (user_id = 510)
+   Heap Blocks: exact=100
+   ->  Bitmap Index Scan on idx_orders_user (actual time=0.018..0.018 rows=100 loops=1)
+         Index Cond: (user_id = 510)
+ Planning Time: 0.108 ms
+ Execution Time: 0.445 ms
+(7 rows)
+
+##E2 without idx_orders_user
+BEGIN
+DROP INDEX
+                           QUERY PLAN                            
+-----------------------------------------------------------------
+ Seq Scan on orders (actual time=0.049..12.168 rows=100 loops=1)
+   Filter: (user_id = 510)
+   Rows Removed by Filter: 199910
+ Planning Time: 0.091 ms
+ Execution Time: 12.201 ms
+(5 rows)
+
+ROLLBACK
+##E3 order lines of one order (idx_items_order)
+                                                QUERY PLAN                                                
+----------------------------------------------------------------------------------------------------------
+ Hash Join (actual time=0.096..0.100 rows=2 loops=1)
+   Hash Cond: (p.product_id = oi.product_id)
+   ->  Seq Scan on products p (actual time=0.005..0.028 rows=46 loops=1)
+   ->  Hash (actual time=0.052..0.053 rows=2 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         ->  Index Scan using idx_items_order on order_items oi (actual time=0.031..0.033 rows=2 loops=1)
+               Index Cond: (order_id = 150000)
+ Planning Time: 0.512 ms
+ Execution Time: 0.146 ms
+(9 rows)
+
+##E4 unindexed FK order_items.product_id
+                                            QUERY PLAN                                            
+--------------------------------------------------------------------------------------------------
+ Finalize Aggregate (actual time=20.318..22.028 rows=1 loops=1)
+   ->  Gather (actual time=19.516..22.018 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate (actual time=16.881..16.882 rows=1 loops=3)
+               ->  Parallel Seq Scan on order_items (actual time=0.010..16.687 rows=2899 loops=3)
+                     Filter: (product_id = 21)
+                     Rows Removed by Filter: 130438
+ Planning Time: 0.043 ms
+ Execution Time: 22.047 ms
+(10 rows)
+
+##E5 after proposed index
+BEGIN
+CREATE INDEX
+ANALYZE
+                                           QUERY PLAN                                            
+-------------------------------------------------------------------------------------------------
+ Aggregate (actual time=5.659..5.660 rows=1 loops=1)
+   ->  Bitmap Heap Scan on order_items (actual time=0.777..5.260 rows=8697 loops=1)
+         Recheck Cond: (product_id = 21)
+         Heap Blocks: exact=3334
+         ->  Bitmap Index Scan on idx_items_product (actual time=0.400..0.400 rows=8697 loops=1)
+               Index Cond: (product_id = 21)
+ Planning Time: 0.162 ms
+ Execution Time: 5.683 ms
+(8 rows)
+
+ROLLBACK
+##E6 small table: planner prefers seq scan
+You are now connected to database "supermart" as user "postgres".
+                      QUERY PLAN                       
+-------------------------------------------------------
+ Seq Scan on orders  (cost=0.00..1.12 rows=1 width=40)
+   Filter: (user_id = 2)
+(2 rows)
+
